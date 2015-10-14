@@ -1,2 +1,2 @@
 # ml-design
-Machine learning system for understanding website design and giving design recommendations to existing sites.
+Machine learning system that understands website design and gives design recommendations to existing sites.
