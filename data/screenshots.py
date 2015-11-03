@@ -6,6 +6,9 @@ to_scrape = open('to_scrape.dat', 'r')
 for url in to_scrape:
     # URL can be malformed, so we use urlparse to make sure it becomes
     # nicely formatted
+    url = url.strip()
+    if url[:7] != 'http://':
+        url = 'http://%s' % url
     o = urlparse(url)
     website = o.geturl()
     cmd = "capturejs --uri '%s' --viewport 1366x768 --output screenshots/%s.png" % (website, o.netloc)
