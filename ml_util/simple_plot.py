@@ -15,5 +15,9 @@ class Plotter():
         assert(self.x_plot.shape == y_plot.shape)
         plt.plot(self.x_plot, y_plot, self.args, self.kwargs)
 
+    def plotBar(self, y):
+        x = np.array(range(len(y)))
+        plt.bar(x, y)
+
     def show(self):
         plt.show()
