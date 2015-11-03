@@ -16,4 +16,4 @@ result = [Image.open(path+img).histogram() for img in imgs]
 with open('colorgram.csv', 'wb') as csvfile:
     writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
     for i in xrange(len(result)):
-        writer.writerow(result[i])
+        writer.writerow([imgs[i]] + result[i])
