@@ -20,6 +20,7 @@ print "Found %d %s images" % (len(imgs), fileExt)
 histograms = [Image.open(path+img).histogram() for img in imgs]
 assert(len(histograms) == len(imgs))
 
+assert(np.sum(ml.normalizeData(np.array(histograms[0]))) == 1.)
 norm_histograms = [ml.normalizeData(np.array(h)) for h in histograms]
 
 with open('colorgram.csv', 'wb') as csvfile:
