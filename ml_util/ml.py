@@ -62,6 +62,9 @@ def normalizeFeatures(X_train, X_test):
     X_test_normalized = (X_test - mean_X_train) / std_X_train
     return X_train_normalized, X_test_normalized
 
+def normalizeData(data):
+    s = np.sum(data)
+    return data.astype(float) / s
 
 # Calculates the RMSE between the two (1, N) matrices
 def rmse(predictions, targets):
