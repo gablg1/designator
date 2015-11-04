@@ -17,8 +17,12 @@ imgs = filter(lambda File: File[-4:] == fileExt, fileList)
 imgs.sort()
 print "Found %d %s images" % (len(imgs), fileExt)
 
-histograms = [Image.open(path+img).histogram() for img in imgs]
+# we only grab the first 768 elements of each histogram, since
+# we don't care about opacity
+D = 768
+histograms = [Image.open(path+img).histogram()[:D] for img in imgs]
 assert(len(histograms) == len(imgs))
+print "Each histogram has %d elements" % len(histograms[0])
 
 assert(np.sum(ml.normalizeData(np.array(histograms[0]))) == 1.)
 norm_histograms = [ml.normalizeData(np.array(h)) for h in histograms]
