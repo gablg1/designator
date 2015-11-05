@@ -5,6 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
+# Hack to import ml_util from the parent directory
+import os, sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from ml_util import ml
 from data import data
 
 # gets Screenshots directory as string
