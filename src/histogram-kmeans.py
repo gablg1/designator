@@ -11,38 +11,10 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from ml_util import ml
 from ml_util import poly_features
 from ml_util import simple_plot
+from data import data
 
-def readCSV(filename):
-    with open(filename, 'r') as csvfile:
-        data = []
-        names = []
-        ranks = []
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            ranks.append(row[0])
-            names.append(row[1])
-            data.append(row[2:])
-        assert(len(names) == len(data))
-        return ranks, names, data
 
-amount = 'top-15k'
-CUT = True
-BIG = True
-# choose the screenshots directory
-if CUT and BIG:
-    path = "cut_screenshots/"
-elif CUT and not BIG:
-    path = "small_cut_screenshots/"
-elif not CUT and BIG:
-    path = 'screenshots/'
-elif not CUT and not BIG:
-    path = 'small_screenshots/'
-
-path = '../data/%s/%s' % (amount, path)
-colorgram = path + 'colorgram.csv'
-
-ranks, website_names, X = readCSV(colorgram)
-X = np.array(X)
+ranks, website_names, X = data.getHistogram(amount='top-15k', cut=True, big=True)
 
 N, D = X.shape
 print "Each feature vector has dimension %d" % D

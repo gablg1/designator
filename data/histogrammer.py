@@ -5,22 +5,10 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from ml_util import ml
 import numpy as np
+import data
 
-amount = 'top-15k'
-# default to current directory
-CUT = True
-BIG = True
 # choose the screenshots directory
-if CUT and BIG:
-    path = "cut_screenshots/"
-elif CUT and not BIG:
-    path = "small_cut_screenshots/"
-elif not CUT and BIG:
-    path = 'screenshots/'
-elif not CUT and not BIG:
-    path = 'small_screenshots/'
-
-path = '%s/%s' % (amount, path)
+path = data.getDataDir(amount='top-15k', cut=True, big=True)
 
 fileList = os.listdir(path)
 fileExt = ".png"
