@@ -21,7 +21,7 @@ N, D = X.shape
 print "Each feature vector has dimension %d" % D
 print "Training on %d samples" % N
 
-numClusters = 8
+numClusters = 20
 kmeans = KMeans(n_clusters = numClusters)
 clusters = kmeans.fit_predict(X)
 assert(len(clusters) == N)
@@ -32,4 +32,4 @@ websites.sort()
 print websites
 
 
-data.plotClusters(websites, xFactor=75, yFactor=25)
+data.plotClusters(websites, clusters=numClusters, xFactor=75, yFactor=25)

@@ -35,7 +35,7 @@ def getDataDir(amount, cut, big):
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     return '%s/%s/%s/' % (cur_dir, amount, path)
 
-def plotClusters(websites, numClusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSize=20, imagePath=None):
+def plotClusters(websites, clusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSize=20, imagePath=None):
     """
      We want to plot every image according to the appropriate point
      on the x-axis according to its cluster number. We want to plot
@@ -48,7 +48,7 @@ def plotClusters(websites, numClusters=8,xFactor=10, yFactor=10, myDpi=96, sampl
     """
     if not imagePath:
     	imagePath = getDataDir('top-15k', cut=True, big=False)
-    clusterDict = [0 for n in xrange(numClusters)]
+    clusterDict = [0 for n in xrange(clusters)]
     plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
     for site in websites:
         clusterIndex, address = site
