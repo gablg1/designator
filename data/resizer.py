@@ -1,10 +1,10 @@
 from PIL import Image
 import os
+import data
 
 toSize = 68,38
 amount = 'top-15k'
 cut = True
-
 
 # choose the screenshots directory
 path = data.getDataDir(amount, cut, big=True)
