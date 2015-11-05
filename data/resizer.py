@@ -2,14 +2,13 @@ from PIL import Image
 import os
 
 toSize = 68,38
-CUT = True
-# default to screenshots directory
-if CUT:
-    path = "cut_screenshots/"
-    to_path = 'small_cut_screenshots/'
-else:
-    path = "screenshots/"
-    to_path = 'small_screenshots/'
+amount = 'top-15k'
+cut = True
+
+
+# choose the screenshots directory
+path = data.getDataDir(amount, cut, big=True)
+to_path = data.getDataDir(amount, cut, big=False)
 
 fileList = os.listdir(path)
 fileExt = ".png"

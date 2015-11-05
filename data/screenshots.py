@@ -2,16 +2,12 @@ import os
 import sys
 from urlparse import urlparse
 import csv
+import data
 
 
 amount = 'top-15k'
 websites_file = amount + '.csv'
-CUT = True
-if CUT:
-    to_path = 'cut_screenshots'
-else:
-	to_path = 'screenshots'
-to_path = '%s/%s' % (amount, to_path)
+to_path = data.getDataDir(amount=amount, cut=True, big=True)
 
 with open(websites_file, 'r') as csvfile:
     lines = csv.reader(csvfile, delimiter=',')

@@ -5,20 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
-toSize = 68,38
-CUT = True
-BIG = False
-# choose the screenshots directory
-if CUT and BIG:
-    path = "cut_screenshots/"
-elif CUT and not BIG:
-    path = "small_cut_screenshots/"
-elif not CUT and BIG:
-    path = 'screenshots/'
-elif not CUT and not BIG:
-    path = 'small_screenshots/'
+from data import data
 
-path = '../data/' + path
+# gets Screenshots directory as string
+path = data.getDataDir(amount='top-15k', cut=True, big=False)
 
 # gets all files
 fileList = os.listdir(path)
