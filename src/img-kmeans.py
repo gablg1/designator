@@ -11,7 +11,7 @@ from ml_util import ml
 from data import data
 
 # gets Screenshots directory as string
-amount='60'
+amount='top-15k'
 path = data.getDataDir(amount=amount, cut=True, big=False)
 
 # gets all files
@@ -46,12 +46,4 @@ for i in range(len(clusters)):
 websites.sort()
 print websites
 
-
-dataPath = data.getDataDir(amount, True, False)
-
-
-data.plotClusters(dataPath, websites, xFactor=75, yFactor=25, sampleSize=3)
-
-
-
-
+data.plotClusters(websites, xFactor=75, yFactor=25)

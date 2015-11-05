@@ -32,37 +32,4 @@ websites.sort()
 print websites
 
 
-dataPath = data.getHistogram(amount, True, True)
-data.plotClusters(dataPath, websites, xFactor=75, yFactor=25, sampleSize=3)
-
-
-
-#imagePath = "../data/60/small_cut_screenshots/"
-#def plotClusters(xFactor=10, yFactor=10, myDpi=96, sampleSize=100):
-    #"""
-     #We want to plot every image according to the appropriate point
-     #on the x-axis according to its cluster number. We want to plot
-     #each new member of a given cluster at a higher y position
-    #"""
-    #clusterDict = [0 for n in xrange(numClusters)]
-    #plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
-    #for site in websites:
-        #clusterIndex, address = site
-        #try:
-            #yIndex = clusterDict[clusterIndex]
-            #if yIndex > sampleSize:
-                #pass
-            #image = mpimg.imread(imagePath+address)
-            #y = yIndex * yFactor
-            #clusterDict[clusterIndex]+=1
-            #plt.figimage(image, clusterIndex*xFactor, y)
-        #except IOError:
-            ## usually if we don't have the small cut image yet
-            #pass
-
-    #plt.show()
-
-#plotClusters(xFactor=75, yFactor=25, sampleSize=3)
-
-
-
+data.plotClusters(websites, xFactor=75, yFactor=25)

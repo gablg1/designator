@@ -12,7 +12,7 @@ def readCSV(filename):
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             ranks.append(row[0])
-            names.append(row[1])
+            names.append(row[0] + '.' + row[1])
             data.append(row[2:])
         assert(len(names) == len(data))
         return ranks, names, np.array(data)
@@ -35,7 +35,7 @@ def getDataDir(amount, cut, big):
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     return '%s/%s/%s/' % (cur_dir, amount, path)
 
-def plotClusters(imagePath, websites, numClusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSize=100):
+def plotClusters(websites, numClusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSize=20, imagePath=None):
     """
      We want to plot every image according to the appropriate point
      on the x-axis according to its cluster number. We want to plot
@@ -46,6 +46,8 @@ def plotClusters(imagePath, websites, numClusters=8,xFactor=10, yFactor=10, myDp
          websites is a list of tuples of the form:
              (clusterNumber, websitename)
     """
+    if not imagePath:
+    	imagePath = getDataDir('top-15k', cut=True, big=False)
     clusterDict = [0 for n in xrange(numClusters)]
     plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
     for site in websites:
@@ -56,6 +58,7 @@ def plotClusters(imagePath, websites, numClusters=8,xFactor=10, yFactor=10, myDp
             print "sampleSize is: " + str(sampleSize)
             if yIndex > sampleSize:
                 continue
+            print imagePath+address
             image = mpimg.imread(imagePath+address)
             y = yIndex * yFactor
             clusterDict[clusterIndex]+=1
