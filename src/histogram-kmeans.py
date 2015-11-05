@@ -14,7 +14,8 @@ from ml_util import simple_plot
 from data import data
 
 
-ranks, website_names, X = data.getHistogram(amount='top-15k', cut=True, big=True)
+amount='top-15k'
+ranks, website_names, X = data.getHistogram(amount=amount, cut=True, big=True)
 
 N, D = X.shape
 print "Each feature vector has dimension %d" % D
@@ -31,29 +32,37 @@ websites.sort()
 print websites
 
 
-imagePath = "../data/small_cut_screenshots/"
-def plotClusters(xoffset=10, yoffset=10, my_dpi=96):
-    """
-     We want to plot every image according to the appropriate point
-     on the x-axis according to its cluster number. We want to plot
-     each new member of a given cluster at a higher y position
-    """
-    clusterDict = [0 for n in xrange(numClusters)]
-    plt.figure(figsize=(800/my_dpi, 800/my_dpi), dpi=my_dpi)
-    for site in websites:
-        clusterIndex, address = site
-        try:
-            image = mpimg.imread(imagePath+address)
-            y = clusterDict[clusterIndex] * yoffset
-            clusterDict[clusterIndex]+=1
-            plt.figimage(image, clusterIndex*xoffset, y)
-        except IOError:
-            # usually if we don't have the small cut image yet
-            pass
+dataPath = data.getHistogram(amount, True, True)
+data.plotClusters(dataPath, websites, xFactor=75, yFactor=25, sampleSize=3)
 
-    plt.show()
 
-#plotClusters(xoffset=75, yoffset=25)
+
+#imagePath = "../data/60/small_cut_screenshots/"
+#def plotClusters(xFactor=10, yFactor=10, myDpi=96, sampleSize=100):
+    #"""
+     #We want to plot every image according to the appropriate point
+     #on the x-axis according to its cluster number. We want to plot
+     #each new member of a given cluster at a higher y position
+    #"""
+    #clusterDict = [0 for n in xrange(numClusters)]
+    #plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
+    #for site in websites:
+        #clusterIndex, address = site
+        #try:
+            #yIndex = clusterDict[clusterIndex]
+            #if yIndex > sampleSize:
+                #pass
+            #image = mpimg.imread(imagePath+address)
+            #y = yIndex * yFactor
+            #clusterDict[clusterIndex]+=1
+            #plt.figimage(image, clusterIndex*xFactor, y)
+        #except IOError:
+            ## usually if we don't have the small cut image yet
+            #pass
+
+    #plt.show()
+
+#plotClusters(xFactor=75, yFactor=25, sampleSize=3)
 
 
 

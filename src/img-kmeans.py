@@ -1,6 +1,5 @@
 from PIL import Image
 from sklearn.cluster import KMeans
-import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -12,7 +11,8 @@ from ml_util import ml
 from data import data
 
 # gets Screenshots directory as string
-path = data.getDataDir(amount='top-15k', cut=True, big=False)
+amount='60'
+path = data.getDataDir(amount=amount, cut=True, big=False)
 
 # gets all files
 fileList = os.listdir(path)
@@ -47,27 +47,11 @@ websites.sort()
 print websites
 
 
-def plotClusters(xoffset=10, yoffset=10, my_dpi=96):
-    """
-     We want to plot every image according to the appropriate point
-     on the x-axis according to its cluster number. We want to plot
-     each new member of a given cluster at a higher y position
-    """
-    clusterDict = [0 for n in xrange(numClusters)]
-    plt.figure(figsize=(800/my_dpi, 800/my_dpi), dpi=my_dpi)
-    for site in websites:
-        clusterIndex, address = site
-        try:
-            image = mpimg.imread(path+address)
-            y = clusterDict[clusterIndex] * yoffset
-            clusterDict[clusterIndex]+=1
-            plt.figimage(image, clusterIndex*xoffset, y)
-        except IOError:
-            # usually if we don't have the small cut image yet
-            pass
+dataPath = data.getDataDir(amount, True, False)
 
-    plt.show()
 
-plotClusters(xoffset=75, yoffset=25)
+data.plotClusters(dataPath, websites, xFactor=75, yFactor=25, sampleSize=3)
+
+
 
 
