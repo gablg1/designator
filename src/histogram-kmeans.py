@@ -16,15 +16,32 @@ def readCSV(filename):
     with open(filename, 'r') as csvfile:
         data = []
         names = []
+        ranks = []
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
-            names.append(row[0])
-            data.append(row[1:])
+            ranks.append(row[0])
+            names.append(row[1])
+            data.append(row[2:])
         assert(len(names) == len(data))
-        return names, data
+        return ranks, names, data
 
-colorgram = '../data/colorgram.csv'
-website_names, X = readCSV(colorgram)
+amount = 'top-15k'
+CUT = True
+BIG = True
+# choose the screenshots directory
+if CUT and BIG:
+    path = "cut_screenshots/"
+elif CUT and not BIG:
+    path = "small_cut_screenshots/"
+elif not CUT and BIG:
+    path = 'screenshots/'
+elif not CUT and not BIG:
+    path = 'small_screenshots/'
+
+path = '../data/%s/%s' % (amount, path)
+colorgram = path + 'colorgram.csv'
+
+ranks, website_names, X = readCSV(colorgram)
 X = np.array(X)
 
 N, D = X.shape
@@ -64,7 +81,7 @@ def plotClusters(xoffset=10, yoffset=10, my_dpi=96):
 
     plt.show()
 
-plotClusters(xoffset=75, yoffset=25)
+#plotClusters(xoffset=75, yoffset=25)
 
 
 
