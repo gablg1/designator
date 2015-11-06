@@ -20,7 +20,7 @@ def imgToHistogram(filepath, bin_size=10):
         for j in range(N):
             r, g, b = tuple(binned[i, j])
             hist[r, g, b] += 1
-    return hist
+    return hist.ravel()
 
 def imgToBandHistogram(filepath):
     return Image.open(filepath).histogram()[:BAND_HISTOGRAM_DIM]

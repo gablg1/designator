@@ -17,24 +17,34 @@ def recommend(img_path):
     amount = 'top-15k'
     cluster_type = 'histogram-kmeans'
 
+    # First we get the histogram of the data
+    x = image.imgToHistogram(img_path)
+
     # Load both the kmeans object and the already calculated clusters
     kmeans = joblib.load('./../persist/%s-%s.pkl' % (amount, cluster_type))
-    clusters = data.readClusters('%s-%s.csv' % (amount, cluster_type))
+    clusters = data.readClustersAsDict('%s-%s.csv' % (amount, cluster_type))
+    print 'done'
 
     # Find where in clusters the image should fit
     band_hist = image.imgToBandHistogram(img_path)
+    print 'done'
     p = kmeans.predict(band_hist)
+    print 'done'
 
-    data_dir = data.getDataDir(amount='top-15k', cut=True, big=True)
+    ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
+
+    # We recreate the clusters containing histograms
     C = []
-    for cluster in clusters:
-        f = lambda filepath: image.imgToHistogram('%s/%s' % (data_dir, filepath))
-    	map(f, cluster)
-        print cluster
+    for i in xrange(len(histograms)):
+        # sites are uniquely identified by rank
+        c = clusters[ranks[i]]
+        if c == p:
+            C.append(histograms[i])
+    C = np.array(C)
+    print C
 
-
-
-    return recommendFromCluster(x, clusters[p])
+    print C.shape
+    return recommendFromCluster(x, C)
 
 # We're using color histograms to represent websites
 # x is 1 x D and cluster is N x D

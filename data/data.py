@@ -15,16 +15,21 @@ def readCSV(filename):
         ranks = []
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
-            ranks.append(row[0])
+            ranks.append(int(row[0]))
             names.append(row[0] + '.' + row[1])
             data.append(row[2:])
         assert(len(names) == len(data))
-        return ranks, names, np.array(data)
+        return ranks, names, np.array(data).astype(float)
 
 # these histograms are by band. Aka Dimension = 256 * 3
 def getBandHistograms(amount, cut, big):
     dirpath = getDataDir(amount, cut, big)
-    filepath = '%s/%s' % (dirpath, 'colorgram.csv')
+    filepath = '%s/%s' % (dirpath, 'band-histograms.csv')
+    return readCSV(filepath)
+
+def getHistograms(amount, cut, big):
+    dirpath = getDataDir(amount, cut, big)
+    filepath = '%s/%s' % (dirpath, 'histograms.csv')
     return readCSV(filepath)
 
 def getDataDir(amount, cut, big):
@@ -74,6 +79,17 @@ def plotClusters(websites, clusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSi
 
     plt.show()
 
+def readClustersAsDict(filename):
+    with open(filename, 'r') as csvfile:
+        current = 0
+        clusters = {}
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            cluster = int(row[0])
+            rank = int(row[1])
+            clusters[rank] = cluster
+        return clusters
+
 def readClusters(filename):
     with open(filename, 'r') as csvfile:
         current = 0
@@ -86,5 +102,5 @@ def readClusters(filename):
                 current += 1
                 clusters.append([])
             assert(current == cluster)
-            clusters[current].append(row[2])
+            clusters[current].append((int(row[1]), row[2]))
         return clusters
