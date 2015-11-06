@@ -1,6 +1,9 @@
 from PIL import Image
 import numpy as np
 
+COLOR_INTENSITIES = 256
+BAND_HISTOGRAM_DIM = COLOR_INTENSITIES * 3
+
 # Returns a binned color histogram of dimension K x K x K where
 # K = 256/bin_size
 def imgToHistogram(filepath, bin_size=10):
@@ -11,14 +14,16 @@ def imgToHistogram(filepath, bin_size=10):
     binned = img[:, :, :3] / bin_size
     M, N, D = binned.shape
     assert(D == 3)
-    INTENSITIES = 256
-    K = INTENSITIES / bin_size + 1
+    K = COLOR_INTENSITIES / bin_size + 1
     hist = np.zeros((K, K, K))
     for i in range(M):
         for j in range(N):
             r, g, b = tuple(binned[i, j])
             hist[r, g, b] += 1
     return hist
+
+def imgToBandHistogram(filepath):
+    return Image.open(filepath).histogram()[:BAND_HISTOGRAM_DIM]
 
 def imgToArray(filepath):
     try:

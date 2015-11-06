@@ -4,6 +4,10 @@ import numpy as np
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 
+def getRankFromFilename(filename):
+    found = filename.find('.')
+    return int(found[:found])
+
 def readCSV(filename):
     with open(filename, 'r') as csvfile:
         data = []
@@ -48,7 +52,7 @@ def plotClusters(websites, clusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSi
              (clusterNumber, websitename)
     """
     if not imagePath:
-    	imagePath = getDataDir('top-15k', cut=True, big=False)
+        imagePath = getDataDir('top-15k', cut=True, big=False)
     clusterDict = [0 for n in xrange(clusters)]
     plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
     for site in websites:
@@ -70,4 +74,17 @@ def plotClusters(websites, clusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSi
 
     plt.show()
 
-
+def readClusters(filename):
+    with open(filename, 'r') as csvfile:
+        current = 0
+        clusters = [[]]
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            cluster = int(row[0])
+            if current < cluster:
+                assert(current == cluster - 1)
+                current += 1
+                clusters.append([])
+            assert(current == cluster)
+            clusters[current].append(row[2])
+        return clusters

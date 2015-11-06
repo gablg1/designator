@@ -3,6 +3,8 @@ from sklearn.cluster import KMeans
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import csv
+from sklearn.externals import joblib
 
 # Hack to import ml_util from the parent directory
 import os, sys
@@ -33,6 +35,7 @@ print "Training on %d samples" % N
 numClusters = 20
 kmeans = KMeans(n_clusters = numClusters)
 clusters = kmeans.fit_predict(X)
+clusters.sort()
 assert(len(clusters) == N)
 websites = []
 for i in range(len(clusters)):
@@ -40,4 +43,6 @@ for i in range(len(clusters)):
 websites.sort()
 print websites
 
-data.plotClusters(websites, clusters=numClusters, xFactor=75, yFactor=25)
+#data.plotClusters(websites, clusters=numClusters, xFactor=75, yFactor=25)
+to = '../persist/' + amount + '-img-kmeans.pkl'
+joblib.dump(kmeans, to)
