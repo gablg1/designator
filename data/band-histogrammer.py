@@ -29,7 +29,7 @@ print 'Normalizing them...'
 assert(np.sum(ml.normalizeData(np.array(histograms[0]))) == 1.)
 norm_histograms = [ml.normalizeData(np.array(h)) for h in histograms]
 
-to = path + 'colorgram.csv'
+to = path + 'band-histograms.csv'
 with open(to, 'wb') as csvfile:
     writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
     for i in xrange(len(norm_histograms)):
