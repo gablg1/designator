@@ -22,7 +22,7 @@ def imgToHistogram(filepath, bin_size=10):
 
 def imgToArray(filepath):
     try:
-        img = np.array(Image.open(path + imgs[i]))
+        img = np.array(Image.open(filepath))
     except IOError as e:
         print e
     return img[:, :, :3].ravel()

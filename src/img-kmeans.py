@@ -9,6 +9,7 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from ml_util import ml
 from data import data
+from data import image
 
 # gets Screenshots directory as string
 amount='top-15k'
@@ -21,14 +22,7 @@ imgs = filter(lambda File: File[-4:] == fileExt, fileList)
 imgs.sort()
 print "Found %d %s images" % (len(imgs), fileExt)
 
-def imgToArray(filepath):
-    try:
-        img = np.array(Image.open(path + imgs[i]))
-    except IOError as e:
-        print e
-    return img[:, :, :3].ravel()
-
-X = np.array([imgToArray(path+imgs[i]) for i in xrange(len(imgs))])
+X = np.array([image.imgToArray(path+imgs[i]) for i in xrange(len(imgs))])
 print X
 website_names = imgs
 
