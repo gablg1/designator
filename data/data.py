@@ -17,7 +17,7 @@ def readCSV(filename):
         assert(len(names) == len(data))
         return ranks, names, np.array(data)
 
-def getHistogram(amount, cut, big):
+def getHistograms(amount, cut, big):
     dirpath = getDataDir(amount, cut, big)
     filepath = '%s/%s' % (dirpath, 'colorgram.csv')
     return readCSV(filepath)

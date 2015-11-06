@@ -15,7 +15,7 @@ from data import data
 
 
 amount='top-15k'
-ranks, website_names, X = data.getHistogram(amount=amount, cut=True, big=True)
+ranks, website_names, X = data.getHistograms(amount=amount, cut=True, big=True)
 
 N, D = X.shape
 print "Each feature vector has dimension %d" % D
