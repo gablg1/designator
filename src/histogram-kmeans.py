@@ -15,7 +15,7 @@ from data import data
 
 
 amount='top-15k'
-ranks, website_names, X = data.getHistograms(amount=amount, cut=True, big=True)
+ranks, website_names, X = data.getBandHistograms(amount=amount, cut=True, big=True)
 
 N, D = X.shape
 print "Each feature vector has dimension %d" % D
@@ -32,4 +32,4 @@ websites.sort()
 print websites
 
 
-data.plotClusters(websites, clusters=numClusters, xFactor=75, yFactor=25)
+#data.plotClusters(websites, clusters=numClusters, xFactor=75, yFactor=25)
