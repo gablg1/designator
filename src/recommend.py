@@ -1,17 +1,13 @@
-from PIL import Image
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 from sklearn.externals import joblib
 
-import time
 
 # Hack to import ml_util from the parent directory
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from ml_util import ml
 from data import data
 from data import image
+import tester
 
 def recommend(img_path):
     amount = 'top-15k'
@@ -44,6 +40,8 @@ def recommend(img_path):
     print C
 
     print C.shape
+    rmse = tester.tester(C)
+    print "RMSE on this cluster is %f" % rmse
     return recommendFromCluster(x, C)
 
 # We're using color histograms to represent websites
