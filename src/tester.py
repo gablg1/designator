@@ -3,7 +3,8 @@ import numpy as np
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from copy import deepcopy
-import recommender
+from data import data
+import recommend
 
 
 def tester(cluster, fractionTrain=.9, highFactor=.1):
@@ -37,10 +38,16 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
                 index = i
         assert(index != None)
         testHist[i] = 0
-        color, howMuch = recommender.recommendFromCluster(testHist, xTrain)
+        color, howMuch = recommend.recommendFromCluster(testHist, xTrain)
         testHist[color]+= howMuch
         diff = copiedHist - testHist
         mse += np.sum(diff**2)
     rmse = np.sqrt(mse/len(xTest))
     return rmse
 
+
+amount = 'top-15k'
+ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
+small_histograms = histograms[200:]
+
+print tester(small_histograms)
