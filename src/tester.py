@@ -4,6 +4,7 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from copy import deepcopy
 import recommender
+from ml_util import ml
 
 
 def tester(cluster, fractionTrain=.9, highFactor=.1):
@@ -25,7 +26,7 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
     endTrain = round(cluster.shape[0] * fractionTrain)
     xTrain = cluster[0:endTrain,]
     xTest = cluster[endTrain:,]
-    mse = 0.
+    rmse = 0.
     prevDiff = 1000
     index = None
     for testHist in xTest:
@@ -39,8 +40,6 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
         testHist[i] = 0
         color, howMuch = recommender.recommendFromCluster(testHist, xTrain)
         testHist[color]+= howMuch
-        diff = copiedHist - testHist
-        mse += np.sum(diff**2)
-    rmse = np.sqrt(mse/len(xTest))
+        rmse += ml.rmse(testHist, copiedHist)
     return rmse
 
