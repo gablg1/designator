@@ -7,7 +7,6 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from data import data
 from data import image
-import tester
 
 def recommend(img_path):
     amount = 'top-15k'
@@ -40,8 +39,6 @@ def recommend(img_path):
     print C
 
     print C.shape
-    rmse = tester.tester(C)
-    print "RMSE on this cluster is %f" % rmse
     return recommendFromCluster(x, C)
 
 # We're using color histograms to represent websites
@@ -65,5 +62,3 @@ def recommendFromElement(x, y):
     diff = y - x
     am = np.argmax(diff)
     return am, diff[am]
-
-print recommend('sample.png')
