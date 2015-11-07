@@ -3,7 +3,7 @@ import numpy as np
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from copy import deepcopy
-from ml_util import ml
+#from ml_util import ml
 from data import data
 import recommend
 
@@ -41,7 +41,8 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
         testHist[i] = 0
         color, howMuch = recommend.recommendFromCluster(testHist, xTrain)
         testHist[color]+= howMuch
-        rmse += ml.rmse(testHist, copiedHist)
+        rmse += np.sum(np.abs(testHist-copiedHist))
+    rmse = np.sqrt(rmse/len(xTest.shape[0]))
     return rmse
 
 
