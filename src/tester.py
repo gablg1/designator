@@ -29,7 +29,7 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
     xTrain, xTest = ml.splitData(cluster, fractionTrain)
     prevDiff = 1000
     index = None
-    copiedHists = np.array([t for t in xTest])
+    copiedHists = np.array(xTest)
     testHists = []
     for testHist in xTest:
         maxVal = np.amax(testHist)
@@ -38,8 +38,10 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
             if ratio < prevDiff:
                 index = i
         assert(index != None)
-        testHist[i] = 0
-        color, howMuch = recommend.recommendFromCluster(testHist, xTrain)
+        print 'Removing color %d. Current amount is %d' % (index, testHist[index])
+        testHist[index] = 0
+        color, howMuch = recommend.recommendFromCluster(testHist, xTest)
+        print 'Recommended color %d. Recommended amount is %d' % (color, howMuch)
         testHist[color]+= howMuch
         testHists.append(testHist)
     testHists = np.array(testHists)
