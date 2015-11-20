@@ -8,6 +8,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from data import data
 from data import image
 import config
+from ml_util import ml
 
 def recommend(img_name, amount=config.amount, cluster_type=config.cluster_type):
     # First we get the histogram of the data
@@ -48,7 +49,7 @@ def recommendFromCluster(x, cluster):
     m = 0
     min_diff = 100000
     for i in range(N):
-        diff = np.linalg.norm(x - cluster[i], 2)
+        diff = ml.euclideanDistance(x, cluster[i])
         if diff < min_diff:
             min_diff = diff
             m = i

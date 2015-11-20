@@ -37,6 +37,8 @@ def canSum(a, b):
         return False
     return True
 
+def euclideanDistance(a, b):
+    return np.linalg.norm(a - b)
 
 ### Data related helpers
 

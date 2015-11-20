@@ -23,15 +23,13 @@ N, D = X.shape
 print "Each feature vector has dimension %d" % D
 print "Training on %d samples" % N
 
-def euclideanDistance(a, b):
-    return np.linalg.norm(a - b)
 
 
 # Similarities matrix
 S = np.zeros((N, N))
 for i in xrange(N):
     for j in xrange(N):
-        S[i, j] = -euclideanDistance(X[i], X[j])
+        S[i, j] = -ml.euclideanDistance(X[i], X[j])
 
 # Preference i p(i) = S(i,i)
 # This is the a priori suitability of point i to serve as an exemplar
