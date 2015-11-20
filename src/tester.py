@@ -47,6 +47,9 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
     testHists = np.array(testHists)
     return ml.rmse(testHists, copiedHists)
 
+def removeColors(bHistograms):
+
+
 
 amount = config.amount
 ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
