@@ -9,8 +9,8 @@ import data
 import image
 
 # choose the screenshots directory
-amount = '60'
-path = data.getDataDir(amount=amount, cut=True, big=True)
+amount = 'top-100'
+path = data.getDataDir(amount=amount, cut=True, big=False)
 
 fileList = os.listdir(path)
 fileExt = ".png"
@@ -23,7 +23,7 @@ print "Found %d %s images" % (len(imgs), fileExt)
 histograms = []
 for i in xrange(len(imgs)):
     print i
-    histograms.append(image.imgToHistogram(path + imgs[i]))
+    histograms.append(image.imgToBinnedHistogram(path + imgs[i]))
 assert(len(histograms) == len(imgs))
 print "Each histogram has %d elements" % len(histograms[0])
 

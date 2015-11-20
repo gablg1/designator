@@ -4,6 +4,8 @@ from urlparse import urlparse
 import csv
 import data
 
+# This file grabs screenshots from a list of sites. All are BIG (1366 x 768)
+# resizer.py is later used to resize all these images into smaller ones
 CUT = True
 
 amount = 'top-100'

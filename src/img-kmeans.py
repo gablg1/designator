@@ -13,9 +13,11 @@ from ml_util import ml
 from data import data
 from data import image
 
+import config
+
 # gets Screenshots directory as string
-amount='top-15k'
-path = data.getDataDir(amount=amount, cut=True, big=False)
+amount = config.amount
+path = data.getDataDir(config.amount, config.cut, config.big)
 
 # gets all files
 fileList = os.listdir(path)

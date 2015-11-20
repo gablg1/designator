@@ -6,7 +6,7 @@ BAND_HISTOGRAM_DIM = COLOR_INTENSITIES * 3
 
 # Returns a binned color histogram of dimension K x K x K where
 # K = 256/bin_size
-def imgToHistogram(filepath, bin_size=10):
+def imgToBinnedHistogram(filepath, bin_size=10):
     try:
         img = np.array(Image.open(filepath))
     except IOError as e:

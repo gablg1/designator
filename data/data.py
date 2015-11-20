@@ -24,12 +24,12 @@ def readCSV(filename):
 # these histograms are by band. Aka Dimension = 256 * 3
 def getBandHistograms(amount, cut, big):
     dirpath = getDataDir(amount, cut, big)
-    filepath = '%s/%s' % (dirpath, 'band-histograms.csv')
+    filepath = '%s%s' % (dirpath, 'band-histograms.csv')
     return readCSV(filepath)
 
 def getHistograms(amount, cut, big):
     dirpath = getDataDir(amount, cut, big)
-    filepath = '%s/%s' % (dirpath, 'histograms.csv')
+    filepath = '%s%s' % (dirpath, 'histograms.csv')
     return readCSV(filepath)
 
 def getDataDir(amount, cut, big):

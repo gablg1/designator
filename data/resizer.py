@@ -3,7 +3,7 @@ import os
 import data
 
 toSize = 68,38
-amount = 'top-15k'
+amount = 'top-100'
 cut = True
 
 # choose the screenshots directory

@@ -44,13 +44,18 @@ def batches(data, batch_size=100):
     n = data.shape[0]
     return np.array_split(data, n / batch_size)
 
+def splitData(X, fraction_train=9.0 / 10.0):
+    end_train = round(X.shape[0] * fraction_train)
+    X_train = X[0:end_train]
+    X_test = X[end_train:]
+    return X_train, X_test
+
 # Splits the data between Train and Test
-def splitTrainTest(X, y, fraction_train = 9.0 / 10.0):
-    end_train = round(X.shape[ 0 ] * fraction_train)
-    X_train = X[0 : end_train, ]
-    y_train = y[ 0 : end_train ]
-    X_test = X[ end_train :, ]
-    y_test = y[ end_train : ]
+def splitTrainTest(X, Y, fraction_train = 9.0 / 10.0):
+    X_train, X_test = splitData(X, fraction_train)
+    Y_train, Y_test = splitData(Y, fraction_train)
+    assert(X_train.shape[0] == Y_train.shape[0])
+    assert(X_test.shape[0] == Y_test.shape[0])
     return X_train, y_train, X_test, y_test
 
 # Normalizes the features so they have mean 0. and stdev 1.
@@ -66,11 +71,13 @@ def normalizeData(data):
     s = np.sum(data)
     return data.astype(float) / s
 
+def rms(a):
+    return np.sqrt(np.mean(np.square(a)))
 
 # Calculates the RMSE between the two (1, N) matrices
 def rmse(predictions, targets):
     assert(canSum(predictions, targets))
-    return np.sqrt(np.mean(np.square(predictions-targets)))
+    return rms(predictions-targets)
 
 
 def predictRMSE(f, x, y, label=None):
