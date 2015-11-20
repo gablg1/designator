@@ -7,10 +7,11 @@ from ml_util import ml
 import numpy as np
 import data
 import image
+import config
 
 # choose the screenshots directory
-amount = 'top-100'
-path = data.getDataDir(amount=amount, cut=True, big=False)
+amount = config.amount
+path = data.getDataDir(amount=amount, cut=config.cut, big=config.big)
 
 fileList = os.listdir(path)
 fileExt = ".png"

@@ -1,12 +1,13 @@
 from PIL import Image
 import os
 import data
+import config
 
 toSize = 68,38
-amount = 'top-100'
-cut = True
 
 # choose the screenshots directory
+amount = config.amount
+cut = config.cut
 path = data.getDataDir(amount, cut, big=True)
 to_path = data.getDataDir(amount, cut, big=False)
 

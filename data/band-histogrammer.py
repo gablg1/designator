@@ -6,9 +6,11 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from ml_util import ml
 import numpy as np
 import data
+import config
 
 # choose the screenshots directory
-path = data.getDataDir(amount='top-100', cut=True, big=False)
+amount = config.amount
+path = data.getDataDir(amount=amount, cut=config.cut, big=config.big)
 
 fileList = os.listdir(path)
 fileExt = ".png"

@@ -3,13 +3,15 @@ import sys
 from urlparse import urlparse
 import csv
 import data
+import config
 
 # This file grabs screenshots from a list of sites. All are BIG (1366 x 768)
 # resizer.py is later used to resize all these images into smaller ones
-CUT = True
 
-amount = 'top-100'
-to_path = data.getDataDir(amount=amount, cut=CUT, big=True)
+amount = config.amount
+
+# big is always True here
+path = data.getDataDir(amount=amount, cut=config.cut, big=True)
 csv_path = '%s/%s' % (amount, amount + '.csv')
 
 with open(csv_path, 'r') as csvfile:
