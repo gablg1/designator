@@ -9,8 +9,10 @@ import recommend
 import config
 from ml_util import ml
 
+amount = config.amount
+ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
 
-def tester(cluster, fractionTrain=.9, highFactor=.1):
+def tester(cluster, fractionTrain=.5, highFactor=.1):
     """
     Parameters:
         cluster: an array of arrays
@@ -37,11 +39,12 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
 
     for i in xrange(n):
     	color, amount = colors[i]
-    	print 'Histogram #%d' % i
+    	print 'Testing site %s' % names[i]
         print 'Removed color %d. Amount removed: %d' % (color, amount)
         hist = histograms[i]
-        recommendedColor, howMuch = recommend.recommendFromCluster(hist, xTrain)
+        elem, recommendedColor, howMuch = recommend.recommendFromCluster(hist, xTrain)
         print 'Recommended color %d. Recommended amount: %d' % (recommendedColor, howMuch)
+        print 'Recommended from website %s' % names[elem]
         histograms[i, color] += howMuch
     return ml.rmse(histograms, xTest)
 
@@ -66,8 +69,5 @@ def removeColors(bHistograms, highFactor):
     return colors, ret
 
 
-
-amount = config.amount
-ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
 
 print tester(histograms)

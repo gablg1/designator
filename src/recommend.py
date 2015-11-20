@@ -52,8 +52,8 @@ def recommendFromCluster(x, cluster):
         if diff < min_diff:
             min_diff = diff
             m = i
-    print 'Recommending from element %d' % m
-    return recommendFromElement(x, cluster[m])
+    a, b = recommendFromElement(x, cluster[m])
+    return m, a, b
 
 # Takes in two 1 x D image vectors and recommends
 # a color and how much should be added to the first one
