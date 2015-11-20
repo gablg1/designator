@@ -51,6 +51,7 @@ def tester(cluster, fractionTrain=.5, highFactor=.1):
 def pickColorToRemove(histogram, highFactor):
     prevDiff = 1000
     maxVal = np.amax(histogram)
+    index = None
     for i in xrange(len(histogram)):
         ratio = np.fabs(histogram[i]/maxVal - highFactor)
         if ratio < prevDiff:
