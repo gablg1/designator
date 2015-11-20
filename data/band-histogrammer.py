@@ -8,7 +8,7 @@ import numpy as np
 import data
 
 # choose the screenshots directory
-path = data.getDataDir(amount='top-15k', cut=True, big=True)
+path = data.getDataDir(amount='60', cut=True, big=True)
 
 fileList = os.listdir(path)
 fileExt = ".png"

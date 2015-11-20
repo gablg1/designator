@@ -66,6 +66,7 @@ def normalizeData(data):
     s = np.sum(data)
     return data.astype(float) / s
 
+
 # Calculates the RMSE between the two (1, N) matrices
 def rmse(predictions, targets):
     assert(canSum(predictions, targets))

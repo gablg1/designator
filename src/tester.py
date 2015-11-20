@@ -46,7 +46,7 @@ def tester(cluster, fractionTrain=.9, highFactor=.1):
     return rmse
 
 
-amount = 'top-15k'
+amount = '60'
 ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
 small_histograms = histograms[200:]
 

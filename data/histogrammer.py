@@ -9,7 +9,8 @@ import data
 import image
 
 # choose the screenshots directory
-path = data.getDataDir(amount='top-15k', cut=True, big=True)
+amount = '60'
+path = data.getDataDir(amount=amount, cut=True, big=True)
 
 fileList = os.listdir(path)
 fileExt = ".png"

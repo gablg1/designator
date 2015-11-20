@@ -4,12 +4,13 @@ from urlparse import urlparse
 import csv
 import data
 
+CUT = True
 
-amount = 'top-15k'
-websites_file = amount + '.csv'
-to_path = data.getDataDir(amount=amount, cut=True, big=True)
+amount = 'top-100'
+to_path = data.getDataDir(amount=amount, cut=CUT, big=True)
+csv_path = '%s/%s' % (amount, amount + '.csv')
 
-with open(websites_file, 'r') as csvfile:
+with open(csv_path, 'r') as csvfile:
     lines = csv.reader(csvfile, delimiter=',')
     for line in lines:
         assert(len(line) == 2)

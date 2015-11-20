@@ -6,14 +6,15 @@ from sklearn.externals import joblib
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from data import data
-from data import image
+from image import SiteImage
 
 def recommend(img_path):
     amount = 'top-15k'
     cluster_type = 'histogram-kmeans'
+    im = SiteImage(img_path)
 
     # First we get the histogram of the data
-    x = image.imgToHistogram(img_path)
+    x = im.toBinnedHistogram()
 
     # Load both the kmeans object and the already calculated clusters
     kmeans = joblib.load('./../persist/%s-%s.pkl' % (amount, cluster_type))
@@ -21,7 +22,7 @@ def recommend(img_path):
     print 'done'
 
     # Find where in clusters the image should fit
-    band_hist = image.imgToBandHistogram(img_path)
+    band_hist = im.toBandHistogram(img_path)
     print 'done'
     p = kmeans.predict(band_hist)
     print 'done'
