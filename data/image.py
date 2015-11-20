@@ -20,6 +20,9 @@ def imgToBinnedHistogram(filepath, bin_size=10):
         for j in range(N):
             r, g, b = tuple(binned[i, j])
             hist[r, g, b] += 1
+
+    # should use the below instead (sparse matrix)
+    #return scipy.sparse.csr_matrix(hist.ravel())
     return hist.ravel()
 
 def imgToBandHistogram(filepath):
