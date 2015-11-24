@@ -18,14 +18,19 @@ class ClusterRecommender(Recommender):
         self.ranks, self.names, self.histograms = data.getHistograms(amount, cut=True, big=False)
 
     # subclass has to override this
-    def train(self, train_data, target_classes):
+    def fit(self, train_data, target_classes):
         self.train_data = train_data
         # Load both the kmeans object and the already calculated clusters
-        self.kmeans = joblib.load('./../persist/%s-%s.pkl' % (self.amount, self.cluster_type))
+        #self.kmeans = joblib.load('./../persist/%s-%s.pkl' % (self.amount, self.cluster_type))
+
+        numClusters = 20
+        self.model = KMeans(n_clusters = numClusters)
+        result = self.model.fit_predict(X)
+        self.clusters = data.clustersToArray(result)
         #clusters = data.readClustersAsDict('%s-%s.csv' % (self.amount, self.cluster_type))
 
         # We store an array of clusters
-        self.clusters = data.readClusters('%s-%s.csv' % (self.amount, self.cluster_type))
+        #self.clusters = data.readClusters('%s-%s.csv' % (self.amount, self.cluster_type))
         #for i in xrange(len(self.histograms)):
             # sites are uniquely identified by rank
         #    c = clusters[ranks[i]]
@@ -55,15 +60,10 @@ class ClusterRecommender(Recommender):
                 min_diff = diff
                 m = i
         a = self.recommendFromElement(x, cluster[m])
-        return m, a
+        return a
 
 
-    def recommend(self, img_path):
-        # First we the data into a feature vector
-        x = image.imgToBinnedHistogram(img_path)
-
-        # Find where in clusters the image should fit
-        band_hist = image.imgToBandHistogram(img_path)
+    def predict(self, x):
         p = self.kmeans.predict(band_hist)
         C = self.clusters[p]
 

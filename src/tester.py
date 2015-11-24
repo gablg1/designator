@@ -36,7 +36,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     n = xTest.shape[0]
 
     train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
-    recommender.train(train_histograms, train_colors)
+    recommender.fit(train_histograms, train_colors)
 
     colors, quantities, histograms = removeColors(xTest, highFactor=highFactor)
     assert(colors.shape[0] == n)
@@ -57,7 +57,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
         #   print 'Recommended from website %s' % names[elem]
 
         # This is used for vanilla classifiers
-        recommendedColor = recommender.recommend(hist)
+        recommendedColor = recommender.predict(hist)
 
         if verbose:
             print 'Recommended color %d' % (recommendedColor)
@@ -95,7 +95,7 @@ def removeColors(bHistograms, highFactor):
 #gnb = GaussianNB()
 
 print 'Naive Bayes Classifier'
-print tester(histograms, SKRecommender(GaussianNB))
+print tester(histograms, GaussianNB())
 print 'Random Forest Classifier'
-print tester(histograms, SKRecommender(RandomForestClassifier))
+print tester(histograms, RandomForestClassifier())
 
