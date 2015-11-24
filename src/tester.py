@@ -49,13 +49,14 @@ def tester(cluster, fractionTrain=.5, highFactor=.1):
     return float(numCorrect)/float(n)
 
 def pickColorToRemove(histogram, highFactor):
-    prevDiff = 1000
+    prevDiff = 100000
     maxVal = np.amax(histogram)
     index = None
     for i in xrange(len(histogram)):
         ratio = np.fabs(histogram[i]/maxVal - highFactor)
         if ratio < prevDiff:
             index = i
+            prevDiff = ratio
     assert(index != None)
     return index
 
