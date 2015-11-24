@@ -1,5 +1,7 @@
 import numpy as np
 from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier
+
 # Hack to import ml_util from the parent directory
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -7,14 +9,14 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #from ml_util import ml
 from data import data
 from recommender import Recommender
-from nb_recommender import NBRecommender
+from sk_recommender import SKRecommender
 import config
 from ml_util import ml
 
 amount = config.amount
 ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
 
-def tester(data, recommender, fractionTrain=.5, highFactor=.1):
+def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     """
     Parameters:
         cluster: an array of arrays
@@ -44,21 +46,25 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1):
 
     for i in xrange(n):
     	color, amount = colors[i], quantities[i]
-    	print 'Testing site %s' % names[i]
-        print 'Removed color %d. Amount removed: %d' % (color, amount)
+        if verbose:
+            print 'Testing site %s' % names[i]
+            print 'Removed color %d. Amount removed: %d' % (color, amount)
         hist = histograms[i]
 
         # This is used for cluster recommendations
         #elem, recommendedColor = recommender.recommendFromCluster(hist, xTrain)
-        #print 'Recommended from website %s' % names[elem]
+        #if verbose:
+        #   print 'Recommended from website %s' % names[elem]
 
         # This is used for vanilla classifiers
         recommendedColor = recommender.recommend(hist)
 
-        print 'Recommended color %d' % (recommendedColor)
+        if verbose:
+            print 'Recommended color %d' % (recommendedColor)
+
         if recommendedColor == color:
             numCorrect += 1
-    return float(numCorrect)/float(n)
+    return float(numCorrect)/n
 
 def pickColorToRemove(histogram, highFactor):
     prevDiff = 100000
@@ -88,5 +94,8 @@ def removeColors(bHistograms, highFactor):
 # Try to recommend colors using GaussianNB
 #gnb = GaussianNB()
 
-print tester(histograms, NBRecommender())
+print 'Naive Bayes Classifier'
+print tester(histograms, SKRecommender(GaussianNB))
+print 'Random Forest Classifier'
+print tester(histograms, SKRecommender(RandomForestClassifier))
 
