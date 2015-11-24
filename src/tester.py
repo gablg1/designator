@@ -7,6 +7,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #from ml_util import ml
 from data import data
 from recommender import Recommender
+from nb_recommender import NBRecommender
 import config
 from ml_util import ml
 
@@ -31,23 +32,30 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1):
     """
     xTrain, xTest = ml.splitData(data, fractionTrain)
     n = xTest.shape[0]
-    colors, histograms = removeColors(xTest, highFactor=highFactor)
-    assert(len(colors) == n)
+
+    train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
+    recommender.train(train_histograms, train_colors)
+
+    colors, quantities, histograms = removeColors(xTest, highFactor=highFactor)
+    assert(colors.shape[0] == n)
     assert(histograms.shape[0] == n)
     numCorrect = 0
 
-    recommender.train(histograms, colors)
 
     for i in xrange(n):
-        colors, histograms = removeColors(xTest, highFactor=highFactor)
-    	color, amount = colors[i]
+    	color, amount = colors[i], quantities[i]
     	print 'Testing site %s' % names[i]
         print 'Removed color %d. Amount removed: %d' % (color, amount)
         hist = histograms[i]
-        elem, recommendedColor = recommender.recommendFromCluster(hist, xTrain)
+
+        # This is used for cluster recommendations
+        #elem, recommendedColor = recommender.recommendFromCluster(hist, xTrain)
+        #print 'Recommended from website %s' % names[elem]
+
+        # This is used for vanilla classifiers
+        recommendedColor = recommender.recommend(hist)
 
         print 'Recommended color %d' % (recommendedColor)
-        print 'Recommended from website %s' % names[elem]
         if recommendedColor == color:
             numCorrect += 1
     return float(numCorrect)/float(n)
@@ -67,17 +75,18 @@ def pickColorToRemove(histogram, highFactor):
 def removeColors(bHistograms, highFactor):
     N = bHistograms.shape[0]
     ret = np.copy(bHistograms)
-    colors = []
+    colorsRemoved = []
+    quantityRemoved = []
     for i in xrange(N):
     	color = pickColorToRemove(bHistograms[i], highFactor=highFactor)
-    	colors.append((color, bHistograms[i, color]))
+    	colorsRemoved.append(color)
+    	quantityRemoved.append(bHistograms[i, color])
     	ret[i, color] = 0
-    return colors, ret
+    return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
 
 # Try to recommend colors using GaussianNB
 #gnb = GaussianNB()
 
-
-print tester(histograms, Recommender())
+print tester(histograms, NBRecommender())
 
