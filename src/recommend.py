@@ -53,12 +53,12 @@ def recommendFromCluster(x, cluster):
         if diff < min_diff:
             min_diff = diff
             m = i
-    a, b = recommendFromElement(x, cluster[m])
-    return m, a, b
+    a = recommendFromElement(x, cluster[m])
+    return m, a
 
 # Takes in two 1 x D image vectors and recommends
 # a color and how much should be added to the first one
 def recommendFromElement(x, y):
     diff = y - x
     am = np.argmax(diff)
-    return am, diff[am]
+    return am

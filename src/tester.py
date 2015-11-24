@@ -2,7 +2,7 @@ import numpy as np
 # Hack to import ml_util from the parent directory
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from copy import deepcopy
+#from copy import deepcopy
 #from ml_util import ml
 from data import data
 import recommend
@@ -29,24 +29,24 @@ def tester(cluster, fractionTrain=.5, highFactor=.1):
         the original and the modified
     """
     xTrain, xTest = ml.splitData(cluster, fractionTrain)
-    index = None
-    copiedHists = np.array(xTest)
-
     n = xTest.shape[0]
     colors, histograms = removeColors(xTest, highFactor=highFactor)
     assert(len(colors) == n)
     assert(histograms.shape[0] == n)
+    numCorrect = 0
 
     for i in xrange(n):
+        colors, histograms = removeColors(xTest, highFactor=highFactor)
     	color, amount = colors[i]
     	print 'Testing site %s' % names[i]
         print 'Removed color %d. Amount removed: %d' % (color, amount)
         hist = histograms[i]
-        elem, recommendedColor, howMuch = recommend.recommendFromCluster(hist, xTrain)
-        print 'Recommended color %d. Recommended amount: %d' % (recommendedColor, howMuch)
+        elem, recommendedColor = recommend.recommendFromCluster(hist, xTrain)
+        print 'Recommended color %d' % (recommendedColor)
         print 'Recommended from website %s' % names[elem]
-        histograms[i, color] += howMuch
-    return ml.rmse(histograms, xTest)
+        if recommendedColor == color:
+            numCorrect += 1
+    return float(numCorrect)/float(n)
 
 def pickColorToRemove(histogram, highFactor):
     prevDiff = 1000
