@@ -8,10 +8,9 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #from copy import deepcopy
 #from ml_util import ml
 from data import data
-from recommender import Recommender
-from sk_recommender import SKRecommender
 import config
 from ml_util import ml
+from cluster_recommender import ClusterRecommender
 
 amount = config.amount
 ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
@@ -98,4 +97,6 @@ print 'Naive Bayes Classifier'
 print tester(histograms, GaussianNB())
 print 'Random Forest Classifier'
 print tester(histograms, RandomForestClassifier())
+print 'Kmeans Classifier'
+print tester(histograms, ClusterRecommender(), verbose=True)
 

@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.externals import joblib
+from sklearn.cluster import KMeans
 
 
 # Hack to import ml_util from the parent directory
@@ -23,10 +24,11 @@ class ClusterRecommender(Recommender):
         # Load both the kmeans object and the already calculated clusters
         #self.kmeans = joblib.load('./../persist/%s-%s.pkl' % (self.amount, self.cluster_type))
 
-        numClusters = 20
+        numClusters = 5
         self.model = KMeans(n_clusters = numClusters)
-        result = self.model.fit_predict(X)
-        self.clusters = data.clustersToArray(result)
+        result = self.model.fit_predict(train_data)
+        self.clusters = ml.clusterResultsToArray(train_data, result)
+        assert(len(self.clusters) == numClusters)
         #clusters = data.readClustersAsDict('%s-%s.csv' % (self.amount, self.cluster_type))
 
         # We store an array of clusters
@@ -37,6 +39,13 @@ class ClusterRecommender(Recommender):
         #    if c == p:
         #        C.append(self.histograms[i])
         #C = np.array(C)
+
+
+    def predict(self, x):
+        p = self.model.predict(x)
+        C = self.clusters[p]
+
+        return self.recommendFromCluster(x, C)
 
     # Takes in two 1 x D image vectors and recommends
     # a color
@@ -63,8 +72,3 @@ class ClusterRecommender(Recommender):
         return a
 
 
-    def predict(self, x):
-        p = self.kmeans.predict(band_hist)
-        C = self.clusters[p]
-
-        return recommendFromCluster(x, C)

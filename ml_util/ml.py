@@ -43,6 +43,23 @@ def euclideanDistance(a, b):
 
 ### Data related helpers
 
+# Useful for turning data + result of i.e. kmeans.fit_predict(data)
+# into an array C where C[i] is a list of all data samples in cluster i
+def clusterResultsToArray(train_data, result):
+    n = train_data.shape[0]
+    assert(len(result) == n)
+
+    numClusters = len(set(result))
+    print numClusters
+    clusters = [[] for i in xrange(numClusters)]
+    for i in xrange(n):
+        cluster = result[i]
+        clusters[cluster].append(train_data[i])
+
+    for i in xrange(numClusters):
+    	clusters[i] = np.array(clusters[i])
+    return clusters
+
 def batches(data, batch_size=100):
     n = data.shape[0]
     return np.array_split(data, n / batch_size)

@@ -90,17 +90,6 @@ def readClustersAsDict(filename):
             clusters[rank] = cluster
         return clusters
 
-def clustersToArray(result):
-    clusters = [[]]
-    for row in result:
-        cluster = int(row[0])
-        if current < cluster:
-            assert(current == cluster - 1)
-            current += 1
-            clusters.append([])
-        assert(current == cluster)
-        clusters[current].append((int(row[1]), row[2]))
-    return clusters
 
 
 def readClusters(filename):
