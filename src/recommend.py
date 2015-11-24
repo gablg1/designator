@@ -10,7 +10,7 @@ from data import image
 import config
 from ml_util import ml
 
-def recommend(img_name, amount=config.amount, cluster_type=config.cluster_type):
+def recommend(img_path, amount=config.amount, cluster_type=config.cluster_type):
     # First we get the histogram of the data
     x = image.imgToBinnedHistogram(img_path)
 
@@ -40,25 +40,3 @@ def recommend(img_name, amount=config.amount, cluster_type=config.cluster_type):
     print C.shape
     return recommendFromCluster(x, C)
 
-# We're using color histograms to represent websites
-# x is 1 x D and cluster is N x D
-# D = (256/bin_size)^3
-def recommendFromCluster(x, cluster):
-    N, D = cluster.shape
-    assert(x.shape == (D,))
-    m = 0
-    min_diff = 100000
-    for i in range(N):
-        diff = ml.euclideanDistance(x, cluster[i])
-        if diff < min_diff:
-            min_diff = diff
-            m = i
-    a = recommendFromElement(x, cluster[m])
-    return m, a
-
-# Takes in two 1 x D image vectors and recommends
-# a color and how much should be added to the first one
-def recommendFromElement(x, y):
-    diff = y - x
-    am = np.argmax(diff)
-    return am

@@ -1,4 +1,4 @@
 amount = 'top-100'
 cut = True
 big = False
-cluster_type = 'kmeans'
+cluster_type = 'histogram-kmeans'

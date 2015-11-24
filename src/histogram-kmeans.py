@@ -13,10 +13,10 @@ from ml_util import ml
 from ml_util import poly_features
 from ml_util import simple_plot
 from data import data
+import config
 
-
-amount='top-15k'
-ranks, website_names, X = data.getBandHistograms(amount=amount, cut=True, big=True)
+amount=config.amount
+ranks, website_names, X = data.getBandHistograms(amount=amount, cut=config.cut, big=config.big)
 
 N, D = X.shape
 print "Each feature vector has dimension %d" % D

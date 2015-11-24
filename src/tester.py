@@ -1,18 +1,19 @@
 import numpy as np
+from sklearn.naive_bayes import GaussianNB
 # Hack to import ml_util from the parent directory
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #from copy import deepcopy
 #from ml_util import ml
 from data import data
-import recommend
+from recommender import Recommender
 import config
 from ml_util import ml
 
 amount = config.amount
 ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
 
-def tester(cluster, fractionTrain=.5, highFactor=.1):
+def tester(data, recommender, fractionTrain=.5, highFactor=.1):
     """
     Parameters:
         cluster: an array of arrays
@@ -28,12 +29,14 @@ def tester(cluster, fractionTrain=.5, highFactor=.1):
         to get back a value which it then adds to the histogramogram, then takes the rmse between
         the original and the modified
     """
-    xTrain, xTest = ml.splitData(cluster, fractionTrain)
+    xTrain, xTest = ml.splitData(data, fractionTrain)
     n = xTest.shape[0]
     colors, histograms = removeColors(xTest, highFactor=highFactor)
     assert(len(colors) == n)
     assert(histograms.shape[0] == n)
     numCorrect = 0
+
+    recommender.train(histograms, colors)
 
     for i in xrange(n):
         colors, histograms = removeColors(xTest, highFactor=highFactor)
@@ -41,7 +44,8 @@ def tester(cluster, fractionTrain=.5, highFactor=.1):
     	print 'Testing site %s' % names[i]
         print 'Removed color %d. Amount removed: %d' % (color, amount)
         hist = histograms[i]
-        elem, recommendedColor = recommend.recommendFromCluster(hist, xTrain)
+        elem, recommendedColor = recommender.recommendFromCluster(hist, xTrain)
+
         print 'Recommended color %d' % (recommendedColor)
         print 'Recommended from website %s' % names[elem]
         if recommendedColor == color:
@@ -71,5 +75,9 @@ def removeColors(bHistograms, highFactor):
     return colors, ret
 
 
+# Try to recommend colors using GaussianNB
+#gnb = GaussianNB()
 
-print tester(histograms)
+
+print tester(histograms, Recommender())
+
