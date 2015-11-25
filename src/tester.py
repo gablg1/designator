@@ -36,6 +36,8 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
 
     train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
     recommender.fit(train_histograms, train_colors)
+    if verbose:
+    	print 'Done fitting'
 
     colors, quantities, histograms = removeColors(xTest, highFactor=highFactor)
     assert(colors.shape[0] == n)
@@ -94,9 +96,9 @@ def removeColors(bHistograms, highFactor):
 #gnb = GaussianNB()
 
 print 'Naive Bayes Classifier'
-print tester(histograms, GaussianNB())
-print 'Random Forest Classifier'
-print tester(histograms, RandomForestClassifier())
+print tester(histograms, GaussianNB(), verbose=False)
+#print 'Random Forest Classifier'
+#print tester(histograms, RandomForestClassifier())
 print 'Kmeans Classifier'
-print tester(histograms, ClusterRecommender(), verbose=True)
+print tester(histograms, ClusterRecommender(), verbose=False)
 
