@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.cluster import KMeans
 
 # Hack to import ml_util from the parent directory
 import os, sys
@@ -97,8 +98,9 @@ def removeColors(bHistograms, highFactor):
 
 print 'Naive Bayes Classifier'
 print tester(histograms, GaussianNB(), verbose=False)
-#print 'Random Forest Classifier'
-#print tester(histograms, RandomForestClassifier())
+print 'Random Forest Classifier'
+print tester(histograms, RandomForestClassifier())
 print 'Kmeans Classifier'
-print tester(histograms, ClusterRecommender(), verbose=False)
+r = ClusterRecommender(KMeans(n_clusters=5))
+print tester(histograms, r, verbose=True)
 

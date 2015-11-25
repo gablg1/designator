@@ -2,7 +2,6 @@ import numpy as np
 from sklearn.externals import joblib
 from sklearn.cluster import KMeans
 
-
 # Hack to import ml_util from the parent directory
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
@@ -13,7 +12,8 @@ from ml_util import ml
 from recommender import Recommender
 
 class ClusterRecommender(Recommender):
-    def __init__(self, amount=config.amount, cluster_type=config.cluster_type):
+    def __init__(self, model, amount=config.amount, cluster_type=config.cluster_type):
+        self.model = model
         self.amount = amount
         self.cluster_type = cluster_type
         self.ranks, self.names, self.histograms = data.getHistograms(amount, cut=True, big=False)
@@ -24,11 +24,8 @@ class ClusterRecommender(Recommender):
         # Load both the kmeans object and the already calculated clusters
         #self.kmeans = joblib.load('./../persist/%s-%s.pkl' % (self.amount, self.cluster_type))
 
-        numClusters = 5
-        self.model = KMeans(n_clusters = numClusters)
         result = self.model.fit_predict(train_data)
         self.clusters = ml.clusterResultsToArray(train_data, result)
-        assert(len(self.clusters) == numClusters)
         #clusters = data.readClustersAsDict('%s-%s.csv' % (self.amount, self.cluster_type))
 
         # We store an array of clusters
@@ -45,7 +42,7 @@ class ClusterRecommender(Recommender):
         p = self.model.predict(x)
         C = self.clusters[p]
 
-        return self.recommendFromCluster(x, C)
+        return self.uglyDucklingRecommend(x, C)
 
     # Takes in two 1 x D image vectors and recommends
     # a color
@@ -58,7 +55,7 @@ class ClusterRecommender(Recommender):
     # x is 1 x D and cluster is N x D
     # D = (256/bin_size)^3
     # The last argument is just to make tester.py work (poorly written code)
-    def recommendFromCluster(self, x, cluster):
+    def naiveRecommendFromCluster(self, x, cluster):
         N, D = cluster.shape
         assert(x.shape == (D,))
         m = 0
@@ -71,4 +68,15 @@ class ClusterRecommender(Recommender):
         a = self.recommendFromElement(x, cluster[m])
         return a
 
+    def uglyDucklingRecommend(self, x, cluster):
+        N, D = cluster.shape
+        assert(x.shape == (D,))
+        means = np.array([0 for i in xrange(D)])
+        for d in xrange(D):
+            if x[d] <= 0:
+            	samples = []
+                for elem in cluster:
+                	samples.append(elem[d])
+                means[d] = np.mean(np.array(samples))
+        return np.argmax(means)
 
