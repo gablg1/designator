@@ -34,7 +34,7 @@ websites.sort()
 print websites
 
 
-#data.plotClusters(websites, clusters=numClusters, xFactor=75, yFactor=25)
+data.plotClusters(websites, amount, clusters=numClusters, xFactor=75, yFactor=25)
 
 # Writes kmeans object to pickle
 to = amount + '-histogram-kmeans'

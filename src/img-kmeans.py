@@ -45,6 +45,6 @@ for i in range(len(clusters)):
 websites.sort()
 print websites
 
-#data.plotClusters(websites, clusters=numClusters, xFactor=75, yFactor=25)
+data.plotClusters(websites, amount, clusters=numClusters, xFactor=75, yFactor=25)
 to = '../persist/' + amount + '-img-kmeans.pkl'
 joblib.dump(kmeans, to)

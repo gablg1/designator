@@ -27,7 +27,7 @@ def getBandHistograms(amount, cut, big):
     filepath = '%s%s' % (dirpath, 'band-histograms.csv')
     return readCSV(filepath)
 
-def getHistograms(amount, cut, big):
+def getBinnedHistograms(amount, cut, big):
     dirpath = getDataDir(amount, cut, big)
     filepath = '%s%s' % (dirpath, 'histograms.csv')
     return readCSV(filepath)
@@ -45,7 +45,7 @@ def getDataDir(amount, cut, big):
     cur_dir = os.path.dirname(os.path.realpath(__file__))
     return '%s/%s/%s/' % (cur_dir, amount, path)
 
-def plotClusters(websites, clusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSize=20, imagePath=None):
+def plotClusters(websites, amount, clusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSize=20):
     """
      We want to plot every image according to the appropriate point
      on the x-axis according to its cluster number. We want to plot
@@ -56,8 +56,7 @@ def plotClusters(websites, clusters=8,xFactor=10, yFactor=10, myDpi=96, sampleSi
          websites is a list of tuples of the form:
              (clusterNumber, websitename)
     """
-    if not imagePath:
-        imagePath = getDataDir('top-15k', cut=True, big=False)
+    imagePath = getDataDir(amount, cut=True, big=False)
     clusterDict = [0 for n in xrange(clusters)]
     plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
     for site in websites:
