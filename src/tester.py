@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
+from sklearn.cluster import AffinityPropagation
 
 # Hack to import ml_util from the parent directory
 import os, sys
@@ -12,9 +13,10 @@ from data import data
 import config
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
+from random_recommender import RandomRecommender
 
 amount = config.amount
-ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
+ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
 
 def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     """
@@ -66,6 +68,9 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
 
         if recommendedColor == color:
             numCorrect += 1
+
+        if i % 100 == 1:
+            print 'Partial %d: %f' % (i, float(numCorrect) / i)
     return float(numCorrect)/n
 
 def pickColorToRemove(histogram, highFactor):
@@ -96,11 +101,20 @@ def removeColors(bHistograms, highFactor):
 # Try to recommend colors using GaussianNB
 #gnb = GaussianNB()
 
+print 'Kmeans Classifier'
+r = ClusterRecommender(KMeans(n_clusters=5))
+print tester(histograms, r, verbose=False)
+
+print 'Affinity Propagation Classifier'
+r = ClusterRecommender(AffinityPropagation(damping=0.99))
+print tester(histograms, r, verbose=False)
+
+
 print 'Naive Bayes Classifier'
 print tester(histograms, GaussianNB(), verbose=False)
 print 'Random Forest Classifier'
 print tester(histograms, RandomForestClassifier())
-print 'Kmeans Classifier'
-r = ClusterRecommender(KMeans(n_clusters=5))
-print tester(histograms, r, verbose=True)
 
+print 'Random Recommender'
+r = RandomRecommender()
+print tester(histograms, r, verbose=False)

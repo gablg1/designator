@@ -16,7 +16,7 @@ class ClusterRecommender(Recommender):
         self.model = model
         self.amount = amount
         self.cluster_type = cluster_type
-        self.ranks, self.names, self.histograms = data.getHistograms(amount, cut=True, big=False)
+        self.ranks, self.names, self.histograms = data.getBinnedHistograms(amount, cut=True, big=False)
 
     # subclass has to override this
     def fit(self, train_data, target_classes):
@@ -36,6 +36,8 @@ class ClusterRecommender(Recommender):
         #    if c == p:
         #        C.append(self.histograms[i])
         #C = np.array(C)
+        self.swan = self.findSwanAttribute(self.clusters[0])
+
 
 
     def predict(self, x):
@@ -68,15 +70,23 @@ class ClusterRecommender(Recommender):
         a = self.recommendFromElement(x, cluster[m])
         return a
 
+    def findSwanAttribute(self, cluster):
+        _, D = cluster.shape
+        means = np.array([0 for i in xrange(D)])
+        for d in xrange(D):
+            samples = []
+            for elem in cluster:
+                samples.append(elem[d])
+            means[d] = np.mean(np.array(samples))
+        return np.argmax(means)
+
     def uglyDucklingRecommend(self, x, cluster):
         N, D = cluster.shape
         assert(x.shape == (D,))
-        means = np.array([0 for i in xrange(D)])
+
+        means = np.mean(cluster, axis=0)
         for d in xrange(D):
-            if x[d] <= 0:
-            	samples = []
-                for elem in cluster:
-                	samples.append(elem[d])
-                means[d] = np.mean(np.array(samples))
+            if x[d] > 0:
+            	means[d] = 0
         return np.argmax(means)
 
