@@ -63,11 +63,8 @@ def plotClusters(websites, amount, clusters=8,xFactor=10, yFactor=10, myDpi=96, 
         clusterIndex, address = site
         try:
             yIndex = clusterDict[clusterIndex]
-            print "yindex is : " + str(yIndex)
-            print "sampleSize is: " + str(sampleSize)
             if yIndex > sampleSize:
                 continue
-            print imagePath+address
             image = mpimg.imread(imagePath+address)
             y = yIndex * yFactor
             clusterDict[clusterIndex]+=1

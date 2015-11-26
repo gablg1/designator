@@ -37,7 +37,6 @@ print "Training on %d samples" % N
 numClusters = 20
 kmeans = KMeans(n_clusters = numClusters)
 clusters = kmeans.fit_predict(X)
-clusters.sort()
 assert(len(clusters) == N)
 websites = []
 for i in range(len(clusters)):

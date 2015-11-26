@@ -16,7 +16,7 @@ from data import data
 import config
 
 amount=config.amount
-ranks, website_names, X = data.getBandHistograms(amount=amount, cut=config.cut, big=config.big)
+ranks, website_names, X = data.getBinnedHistograms(amount=amount, cut=config.cut, big=config.big)
 
 N, D = X.shape
 print "Each feature vector has dimension %d" % D
@@ -25,7 +25,6 @@ print "Training on %d samples" % N
 numClusters = 20
 kmeans = KMeans(n_clusters = numClusters)
 clusters = kmeans.fit_predict(X)
-clusters.sort()
 assert(len(clusters) == N)
 websites = []
 for i in range(len(clusters)):
