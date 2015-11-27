@@ -10,7 +10,6 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #from copy import deepcopy
 #from ml_util import ml
-from image import binToRGB
 from data import data
 from data import image
 import config
@@ -19,9 +18,10 @@ from cluster_recommender import ClusterRecommender
 from random_recommender import RandomRecommender
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import matplotlib.patches as patches
 
 amount = config.amount
-ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
+ranks, names, histograms = data.getBandHistograms(amount, cut=True, big=False)
 
 def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, plot=False):
     """
@@ -41,8 +41,9 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
     """
     xTrain, xTest = ml.splitData(data, fractionTrain)
     n = xTest.shape[0]
-    trainNames = names[:round(n*fractionTrain)]
+    m = xTrain.shape[0]
 
+    trainNames = names[:m]
 
     train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
     recommender.fit(train_histograms, train_colors, trainNames)
@@ -112,11 +113,27 @@ def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=1
     clusterNames: the names of the images in the cluster we assigned this image to
     """
     imagePath = data.getDataDir(amount, cut=True, big=False)
-    plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
-    clusterDict = [0 for n in xrange(names)]
-    for i in xrange(names):
-        colorRemoved = binToRGB(removed[i])
-        colorRecommend = binToRGB(recommend[i])
+    fig = plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
+    ax = fig.add_subplot(111, aspect='equal')
+    for i in xrange(len(names)):
+        rr, rg, rb = image.binToRGB(removed[i])
+        cr, cg, cb = image.binToRGB(recommend[i])
+        rem = '#%02x%02x%02x' % (rr, rg, rb)
+        rec = '#%02x%02x%02x' % (cr, cg, cb)
+        print rem
+        print rec
+        try:
+            imager = mpimg.imread(imagePath + names[i])
+            plt.figimage(imager, 25, i * 25)
+            ax.add_patch(patches.Rectangle((50, i * 50),10,10, facecolor=rem))
+            ax.add_patch(patches.Rectangle((50, i * 75),10,10, facecolor=rec))
+        except IOError:
+            print "%s not found" % imagePath+names[i]
+            pass
+    plt.show()
+        #remNorm = (float(rr)/256, float(rg)/256, float(rb)/256)
+        #recNorm = (float(cr)/256, float(cg)/256, float(cb)/256)
+
 
 def colorError(removed, recommended):
     n = len(removed)
@@ -150,44 +167,49 @@ def removeColors(bHistograms, highFactor):
     	ret[i, color] = 0
     return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
-print 'Kmeans Classifier'
-r = ClusterRecommender(KMeans(n_clusters=1))
-print tester(histograms, r, verbose=False)
+doPlot = False
 
-print 'Naive Bayes Classifier'
-print tester(histograms, GaussianNB(), verbose=False)
+if doPlot:
+    print 'Kmeans Classifier'
+    r = ClusterRecommender(KMeans(n_clusters=1))
+    print tester(histograms, r, verbose=False)
 
-print 'Random Forest Classifier'
-print tester(histograms, RandomForestClassifier())
+    print 'Naive Bayes Classifier'
+    print tester(histograms, GaussianNB(), verbose=False)
 
-print 'Kmeans Classifier'
-r = ClusterRecommender(KMeans(n_clusters=5))
-print tester(histograms, r, verbose=False)
+    print 'Random Forest Classifier'
+    print tester(histograms, RandomForestClassifier())
 
-print 'Kmeans Classifier'
-r = ClusterRecommender(KMeans(n_clusters=10))
-print tester(histograms, r, verbose=False)
+    print 'Kmeans Classifier'
+    r = ClusterRecommender(KMeans(n_clusters=5))
+    print tester(histograms, r, verbose=False)
 
-print 'Kmeans Classifier'
-r = ClusterRecommender(KMeans(n_clusters=15))
-print tester(histograms, r, verbose=False)
+    print 'Kmeans Classifier'
+    r = ClusterRecommender(KMeans(n_clusters=10))
+    print tester(histograms, r, verbose=False)
 
-print 'Affinity Propagation Classifier'
-r = ClusterRecommender(AffinityPropagation(damping=0.999))
-print tester(histograms, r, verbose=False)
+    print 'Kmeans Classifier'
+    r = ClusterRecommender(KMeans(n_clusters=15))
+    print tester(histograms, r, verbose=False)
 
-print 'Affinity Propagation Classifier'
-r = ClusterRecommender(AffinityPropagation(damping=0.7))
-print tester(histograms, r, verbose=False)
+    print 'Affinity Propagation Classifier'
+    r = ClusterRecommender(AffinityPropagation(damping=0.999))
+    print tester(histograms, r, verbose=False)
 
-print 'Affinity Propagation Classifier'
+    print 'Affinity Propagation Classifier'
+    r = ClusterRecommender(AffinityPropagation(damping=0.7))
+    print tester(histograms, r, verbose=False)
+
+    print 'Affinity Propagation Classifier'
+    r = ClusterRecommender(AffinityPropagation(damping=0.8))
+    print tester(histograms, r, verbose=False)
+
+    print 'Affinity Propagation Classifier'
+    r = ClusterRecommender(AffinityPropagation(damping=0.99))
+    print tester(histograms, r, verbose=False)
+
+    print 'Support Vector Machine'
+    print tester(histograms, svm.SVC(), verbose=False)
+
 r = ClusterRecommender(AffinityPropagation(damping=0.8))
-print tester(histograms, r, verbose=False)
-
-print 'Affinity Propagation Classifier'
-r = ClusterRecommender(AffinityPropagation(damping=0.99))
-print tester(histograms, r, verbose=False)
-
-print 'Support Vector Machine'
-print tester(histograms, svm.SVC(), verbose=False)
-
+print tester(histograms, r, verbose=False, plot=True)

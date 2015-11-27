@@ -18,7 +18,7 @@ class ClusterRecommender(Recommender):
         self.amount = amount
         self.cluster_type = cluster_type
         self.highFactor = highFactor
-        self.ranks, self.names, self.histograms = data.getHistograms(amount, cut=True, big=False)
+        self.ranks, self.names, self.histograms = data.getBandHistograms(amount, cut=True, big=False)
         self.clusterNames = {}
 
     # TODO: find another way to keep track of clusters and the name of the images that
@@ -108,10 +108,10 @@ class ClusterRecommender(Recommender):
         where = self.names.index(name)
         hist = self.histograms[where]
         posInCluster = self.model.predict(hist)
-        return posInCluster
+        return posInCluster[0]
 
     # given histogram data, return what cluster we assign this
     # image to
     def returnClusterTest(self, hist):
         posInCluster = self.model.predict(hist)
-        return posInCluster
+        return posInCluster[0]
