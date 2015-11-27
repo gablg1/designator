@@ -3,6 +3,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
 from sklearn.cluster import AffinityPropagation
+from sklearn import svm
 
 # Hack to import ml_util from the parent directory
 import os, sys
@@ -10,6 +11,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #from copy import deepcopy
 #from ml_util import ml
 from data import data
+from data import image
 import config
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
@@ -48,11 +50,12 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     numCorrect = 0
 
 
+    recommendedColors = np.zeros((n))
     for i in xrange(n):
     	color, amount = colors[i], quantities[i]
         if verbose:
             print 'Testing site %s' % names[i]
-            print 'Removed color %d. Amount removed: %d' % (color, amount)
+            print 'Amount remmoved %d' % amount
         hist = histograms[i]
 
         # This is used for cluster recommendations
@@ -62,6 +65,9 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
 
         # This is used for vanilla classifiers
         recommendedColor = recommender.predict(hist)
+        #print 'Removed color %d. Recommended color %d.' % (color, recommendedColor)
+        #print 'Color distance: %d' % (image.binDistance(recommendedColor, color) )
+        recommendedColors[i] = recommendedColor
 
         if verbose:
             print 'Recommended color %d' % (recommendedColor)
@@ -71,7 +77,18 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
 
         if i % 100 == 1:
             print 'Partial %d: %f' % (i, float(numCorrect) / i)
+
+    print colorError(colors, recommendedColors)
     return float(numCorrect)/n
+
+def colorError(removed, recommended):
+    n = len(removed)
+    assert(len(recommended) == n)
+    s = 0
+    for i in xrange(n):
+    	s += image.binSquareDistance(removed[i], recommended[i])
+    return s / (n * 256 * 3)
+
 
 def pickColorToRemove(histogram, highFactor):
     prevDiff = 100000
@@ -97,18 +114,42 @@ def removeColors(bHistograms, highFactor):
     	ret[i, color] = 0
     return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
-
-# Try to recommend colors using GaussianNB
-#gnb = GaussianNB()
+print 'Kmeans Classifier'
+r = ClusterRecommender(KMeans(n_clusters=1))
+print tester(histograms, r, verbose=False)
 
 print 'Kmeans Classifier'
 r = ClusterRecommender(KMeans(n_clusters=5))
+print tester(histograms, r, verbose=False)
+
+print 'Kmeans Classifier'
+r = ClusterRecommender(KMeans(n_clusters=10))
+print tester(histograms, r, verbose=False)
+
+print 'Kmeans Classifier'
+r = ClusterRecommender(KMeans(n_clusters=15))
+print tester(histograms, r, verbose=False)
+
+
+print 'Affinity Propagation Classifier'
+r = ClusterRecommender(AffinityPropagation(damping=0.999))
+print tester(histograms, r, verbose=False)
+
+print 'Affinity Propagation Classifier'
+r = ClusterRecommender(AffinityPropagation(damping=0.7))
+print tester(histograms, r, verbose=False)
+
+print 'Affinity Propagation Classifier'
+r = ClusterRecommender(AffinityPropagation(damping=0.8))
 print tester(histograms, r, verbose=False)
 
 print 'Affinity Propagation Classifier'
 r = ClusterRecommender(AffinityPropagation(damping=0.99))
 print tester(histograms, r, verbose=False)
 
+
+print 'Support Vector Machine'
+print tester(histograms, svm.SVC(), verbose=False)
 
 print 'Naive Bayes Classifier'
 print tester(histograms, GaussianNB(), verbose=False)
