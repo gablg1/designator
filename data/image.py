@@ -17,11 +17,11 @@ def imgToBinnedHistogram(filepath):
     binned = img[:, :, :3] / BIN_SIZE
     M, N, D = binned.shape
     assert(D == 3)
-    hist = np.zeros((K, K, K))
+    hist = np.zeros((K * K * K))
     for i in range(M):
         for j in range(N):
             r, g, b = tuple(binned[i, j])
-            bucket = RGBToBin(r, g, b, K)
+            bucket = RGBToBin(r, g, b)
             hist[bucket] += 1
 
     # should use the below instead (sparse matrix)

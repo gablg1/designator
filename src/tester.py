@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import KMeans
@@ -61,9 +62,21 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
         clusterLoc= []
         #clusterIndexList = []
 
+    D = histograms.shape[1]
+    count = np.zeros(D)
+    for color in colors:
+        count[color] += 1
+
+
     recommendedColors = np.zeros((n))
+    ignored = 0
     for i in xrange(n):
     	color, amount = colors[i], quantities[i]
+        # Ignore colors that might bias us
+        if count[color] > 10:
+        	ignored += 1
+        	continue
+
         if verbose:
             print 'Testing site %s' % names[i]
             print 'Amount remmoved %d' % amount
@@ -76,8 +89,11 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
 
         # This is used for vanilla classifiers
         recommendedColor = recommender.predict(hist)
-        #print 'Removed color %d. Recommended color %d.' % (color, recommendedColor)
-        #print 'Color distance: %d' % (image.binDistance(recommendedColor, color) )
+        r1, g1, b1 = image.binToRGB(color)
+        r2, g2, b2 = image.binToRGB(recommendedColor)
+        if verbose:
+            print 'Removed color %d %d %d. Recommended color %d %d %d.' % (r1, g1, b1, r2, g2, b2)
+            print 'Color distance: %d' % (image.binDistance(recommendedColor, color))
         recommendedColors[i] = recommendedColor
 
         # for plotting purposes
@@ -97,12 +113,13 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
             numCorrect += 1
 
         if i % 100 == 1:
-            print 'Partial %d: %f' % (i, float(numCorrect) / i)
+            print 'Partial %d: %f' % (i, float(numCorrect) / (i - ignored))
 
+    print 'Ignored: %d' % ignored
     print colorError(colors, recommendedColors)
     if plot:
         plotRecommend(colorRemoved, colorRecommend, namesRecommend, clusterLoc)
-    percentCorrect = float(numCorrect)/n
+    percentCorrect = float(numCorrect)/(n - ignored)
     return percentCorrect
 
 def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=10, myDpi=96, sampleSize=5, amount=amount):
@@ -143,11 +160,27 @@ def colorError(removed, recommended):
     	s += image.binSquareDistance(removed[i], recommended[i])
     return s / (n * 256 * 3)
 
+def pickRandomColor(histogram):
+    maxVal = np.amax(histogram)
+    top_threshold = maxVal / 10.
+    bottom_threshold = maxVal / 20.
+
+    p = maxVal
+    while histogram[p] > top_threshold or histogram[p] < bottom_threshold:
+        p = random.randint(0, len(histogram) - 1)
+        top_threshold *= 1.001
+        if top_threshold >= maxVal:
+        	top_threshold = maxVal
+        bottom_threshold *= 0.999
+        if bottom_threshold <= 0:
+        	bottom_threshold = 0
+    return p
+
 def pickColorToRemove(histogram, highFactor):
     prevDiff = 100000
     maxVal = np.amax(histogram)
     index = None
-    for i in xrange(len(histogram)):
+    for i in xrange(1, len(histogram)):
         ratio = np.fabs(histogram[i]/maxVal - highFactor)
         if ratio < prevDiff:
             index = i
@@ -161,13 +194,16 @@ def removeColors(bHistograms, highFactor):
     colorsRemoved = []
     quantityRemoved = []
     for i in xrange(N):
-    	color = pickColorToRemove(bHistograms[i], highFactor=highFactor)
+    	color = pickRandomColor(bHistograms[i])
     	colorsRemoved.append(color)
     	quantityRemoved.append(bHistograms[i, color])
     	ret[i, color] = 0
     return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
 doPlot = False
+print 'Whole Set Classifier'
+r = ClusterRecommender(KMeans(n_clusters=1))
+print tester(histograms, r, verbose=False)
 
 if doPlot:
     print 'Kmeans Classifier'
@@ -195,6 +231,9 @@ if doPlot:
     print 'Affinity Propagation Classifier'
     r = ClusterRecommender(AffinityPropagation(damping=0.999))
     print tester(histograms, r, verbose=False)
+#print 'Affinity Propagation Classifier'
+#r = ClusterRecommender(AffinityPropagation(damping=0.7))
+#print tester(histograms, r, verbose=False)
 
     print 'Affinity Propagation Classifier'
     r = ClusterRecommender(AffinityPropagation(damping=0.7))
@@ -213,3 +252,7 @@ if doPlot:
 
 r = ClusterRecommender(AffinityPropagation(damping=0.8))
 print tester(histograms, r, verbose=False, plot=True)
+
+print 'Kmeans Classifier'
+r = ClusterRecommender(KMeans(n_clusters=15))
+print tester(histograms, r, verbose=False)

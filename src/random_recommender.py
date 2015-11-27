@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from sklearn.externals import joblib
 from sklearn.cluster import KMeans
 
@@ -27,5 +28,5 @@ class RandomRecommender(Recommender):
         for d in xrange(D):
             if x[d] <= 0:
             	zeros.append(d)
-        return zeros[0]
+        return random.choice(zeros)
 
