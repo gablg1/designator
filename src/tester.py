@@ -10,17 +10,20 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #from copy import deepcopy
 #from ml_util import ml
+from image import binToRGB
 from data import data
 from data import image
 import config
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
 from random_recommender import RandomRecommender
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 amount = config.amount
 ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
 
-def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
+def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, plot=False):
     """
     Parameters:
         cluster: an array of arrays
@@ -38,9 +41,11 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     """
     xTrain, xTest = ml.splitData(data, fractionTrain)
     n = xTest.shape[0]
+    trainNames = names[:round(n*fractionTrain)]
+
 
     train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
-    recommender.fit(train_histograms, train_colors)
+    recommender.fit(train_histograms, train_colors, trainNames)
     if verbose:
     	print 'Done fitting'
 
@@ -48,7 +53,12 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     assert(colors.shape[0] == n)
     assert(histograms.shape[0] == n)
     numCorrect = 0
-
+    if plot:
+        colorRecommend = []
+        namesRecommend = []
+        colorRemoved = []
+        clusterLoc= []
+        #clusterIndexList = []
 
     recommendedColors = np.zeros((n))
     for i in xrange(n):
@@ -60,7 +70,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
 
         # This is used for cluster recommendations
         #elem, recommendedColor = recommender.recommendFromCluster(hist, xTrain)
-        #if verbose:
+            #if verbose:
         #   print 'Recommended from website %s' % names[elem]
 
         # This is used for vanilla classifiers
@@ -68,6 +78,16 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
         #print 'Removed color %d. Recommended color %d.' % (color, recommendedColor)
         #print 'Color distance: %d' % (image.binDistance(recommendedColor, color) )
         recommendedColors[i] = recommendedColor
+
+        # for plotting purposes
+        if plot:
+            colorRemoved.append(color)
+            colorRecommend.append(recommendedColor)
+            namesRecommend.append(names[i])
+            clusterIndex = recommender.returnClusterTest(hist)
+            clusterNames = recommender.clusterNames[clusterIndex]
+            #clusterIndexList.append(clusterLin)
+            clusterLoc.append(clusterNames)
 
         if verbose:
             print 'Recommended color %d' % (recommendedColor)
@@ -79,7 +99,26 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
             print 'Partial %d: %f' % (i, float(numCorrect) / i)
 
     print colorError(colors, recommendedColors)
-    return float(numCorrect)/n
+    if plot:
+        plotRecommend(colorRemoved, colorRecommend, namesRecommend, clusterLoc)
+
+    percentCorrect = float(numCorrect)/n
+
+    return percentCorrect
+
+def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=10, myDpi=96, sampleSize=5, amount=amount):
+    """
+    removed: the color that we removed from the image
+    recommend: the color that was recommended from the modified image
+    names: the name of the image we were making a recommendation about
+    clusterNames: the names of the images in the cluster we assigned this image to
+    """
+    imagePath = data.getDataDir(amount, cut=True, big=False)
+    plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
+    clusterDict = [0 for n in xrange(names)]
+    for i in xrange(names):
+        colorRemoved = binToRGB(removed[i])
+        colorRecommend = binToRGB(recommend[i])
 
 def colorError(removed, recommended):
     n = len(removed)
@@ -130,7 +169,6 @@ print 'Kmeans Classifier'
 r = ClusterRecommender(KMeans(n_clusters=15))
 print tester(histograms, r, verbose=False)
 
-
 print 'Affinity Propagation Classifier'
 r = ClusterRecommender(AffinityPropagation(damping=0.999))
 print tester(histograms, r, verbose=False)
@@ -147,15 +185,6 @@ print 'Affinity Propagation Classifier'
 r = ClusterRecommender(AffinityPropagation(damping=0.99))
 print tester(histograms, r, verbose=False)
 
-
 print 'Support Vector Machine'
 print tester(histograms, svm.SVC(), verbose=False)
 
-print 'Naive Bayes Classifier'
-print tester(histograms, GaussianNB(), verbose=False)
-print 'Random Forest Classifier'
-print tester(histograms, RandomForestClassifier())
-
-print 'Random Recommender'
-r = RandomRecommender()
-print tester(histograms, r, verbose=False)
