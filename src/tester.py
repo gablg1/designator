@@ -8,15 +8,18 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 #from copy import deepcopy
 #from ml_util import ml
+from image import binToRGB
 from data import data
 import config
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 amount = config.amount
 ranks, names, histograms = data.getHistograms(amount, cut=True, big=False)
 
-def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
+def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, plot=False):
     """
     Parameters:
         cluster: an array of arrays
@@ -34,9 +37,11 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     """
     xTrain, xTest = ml.splitData(data, fractionTrain)
     n = xTest.shape[0]
+    trainNames = names[:round(n*fractionTrain)]
+
 
     train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
-    recommender.fit(train_histograms, train_colors)
+    recommender.fit(train_histograms, train_colors, trainNames)
     if verbose:
     	print 'Done fitting'
 
@@ -44,7 +49,12 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     assert(colors.shape[0] == n)
     assert(histograms.shape[0] == n)
     numCorrect = 0
-
+    if plot:
+        colorRecommend = []
+        namesRecommend = []
+        colorRemoved = []
+        clusterLoc= []
+        #clusterIndexList = []
 
     for i in xrange(n):
     	color, amount = colors[i], quantities[i]
@@ -55,18 +65,49 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
 
         # This is used for cluster recommendations
         #elem, recommendedColor = recommender.recommendFromCluster(hist, xTrain)
-        #if verbose:
+            #if verbose:
         #   print 'Recommended from website %s' % names[elem]
 
         # This is used for vanilla classifiers
         recommendedColor = recommender.predict(hist)
+
+        # for plotting purposes
+        if plot:
+            colorRemoved.append(color)
+            colorRecommend.append(recommendedColor)
+            namesRecommend.append(names[i])
+            clusterIndex = recommender.returnClusterTest(hist)
+            clusterNames = recommender.clusterNames[clusterIndex]
+            #clusterIndexList.append(clusterLin)
+            clusterLoc.append(clusterNames)
 
         if verbose:
             print 'Recommended color %d' % (recommendedColor)
 
         if recommendedColor == color:
             numCorrect += 1
-    return float(numCorrect)/n
+
+    if plot:
+        plotRecommend(colorRemoved, colorRecommend, namesRecommend, clusterLoc)
+
+    percentCorrect = float(numCorrect)/n
+
+    return percentCorrect
+
+def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=10, myDpi=96, sampleSize=5, amount=amount):
+    """
+    removed: the color that we removed from the image
+    recommend: the color that was recommended from the modified image
+    names: the name of the image we were making a recommendation about
+    clusterNames: the names of the images in the cluster we assigned this image to
+    """
+    imagePath = data.getDataDir(amount, cut=True, big=False)
+    plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
+    clusterDict = [0 for n in xrange(names)]
+    for i in xrange(names):
+        colorRemoved = binToRGB(removed[i])
+        colorRecommend = binToRGB(recommend[i])
+
 
 def pickColorToRemove(histogram, highFactor):
     prevDiff = 100000
@@ -92,9 +133,6 @@ def removeColors(bHistograms, highFactor):
     	ret[i, color] = 0
     return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
-
-# Try to recommend colors using GaussianNB
-#gnb = GaussianNB()
 
 print 'Naive Bayes Classifier'
 print tester(histograms, GaussianNB(), verbose=False)

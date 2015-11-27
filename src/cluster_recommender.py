@@ -1,26 +1,37 @@
 import numpy as np
-from sklearn.externals import joblib
-from sklearn.cluster import KMeans
+#from sklearn.externals import joblib
+#from sklearn.cluster import KMeans
 
 # Hack to import ml_util from the parent directory
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from data import data
-from data import image
+#from data import image
 import config
 from ml_util import ml
 from recommender import Recommender
+from collections import defaultdict
 
 class ClusterRecommender(Recommender):
-    def __init__(self, model, amount=config.amount, cluster_type=config.cluster_type):
+    def __init__(self, model, amount=config.amount, cluster_type=config.cluster_type, highFactor=.1):
         self.model = model
         self.amount = amount
         self.cluster_type = cluster_type
+        self.highFactor = highFactor
         self.ranks, self.names, self.histograms = data.getHistograms(amount, cut=True, big=False)
+        self.clusterNames = {}
 
-    # subclass has to override this
-    def fit(self, train_data, target_classes):
+    # TODO: find another way to keep track of clusters and the name of the images that
+    # belong in those cluster, pretty bad that we need to pass names to fit
+    def fit(self, train_data, target_classes, names):
         self.train_data = train_data
+        clusterNames = [(target_classes[i], names[i]) for i in xrange(len(target_classes))]
+        clusterDict = defaultdict(list)
+
+        for tup in clusterNames:
+            clusterDict[tup[0]].append(tup[1])
+        self.clusterNames = clusterDict
+
         # Load both the kmeans object and the already calculated clusters
         #self.kmeans = joblib.load('./../persist/%s-%s.pkl' % (self.amount, self.cluster_type))
 
@@ -80,3 +91,17 @@ class ClusterRecommender(Recommender):
                 means[d] = np.mean(np.array(samples))
         return np.argmax(means)
 
+    # given an image name, return what cluster the image is in
+    # if this is something we've trained on, then train should
+    # be true and we will just re-predict where it should be
+    def returnClusterTrain(self, name):
+        where = self.names.index(name)
+        hist = self.histograms[where]
+        posInCluster = self.model.predict(hist)
+        return posInCluster
+
+    # given histogram data, return what cluster we assign this
+    # image to
+    def returnClusterTest(self, hist):
+        posInCluster = self.model.predict(hist)
+        return posInCluster
