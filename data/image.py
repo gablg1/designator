@@ -6,6 +6,7 @@ COLOR_INTENSITIES = 256
 BAND_HISTOGRAM_DIM = COLOR_INTENSITIES * 3
 BIN_SIZE = 10
 K = COLOR_INTENSITIES / BIN_SIZE + 1
+BINNED_DIM = K * K * K
 
 # Returns a binned color histogram of dimension K x K x K where
 # K = 256/bin_size
@@ -14,7 +15,7 @@ def imgToBinnedHistogram(filepath):
         img = np.array(Image.open(filepath))
     except IOError as e:
         print e
-    binned = img[:, :, :3] / BIN_SIZE
+    binned = img[:, :, :3]
     M, N, D = binned.shape
     assert(D == 3)
     hist = np.zeros((K * K * K))
@@ -29,14 +30,19 @@ def imgToBinnedHistogram(filepath):
     return hist
 
 def RGBToBin(r, g, b):
-    return r * K ** 2 + g * K + b
+    b = (r * K ** 2 + g * K + b) / BIN_SIZE
+    #r1, g1, b1 = binToRGB(b)
+    #assert(b == b1 and r1 == r and g1 == g)
+    return b
 
 def binToRGB(bin_number):
+    bin_number = int(bin_number)
     b = bin_number % K
-    bin_number /= K
-    g = bin_number % K
-    r = bin_number / K
-    return r, g, b
+    bnumber =  bin_number / K
+    g = bnumber % K
+    r = bnumber / K
+
+    return r * BIN_SIZE, g * BIN_SIZE, b * BIN_SIZE
 
 def binDistance(a, b):
     r1, g1, b1 = binToRGB(a)

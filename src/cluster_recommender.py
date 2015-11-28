@@ -89,9 +89,12 @@ class ClusterRecommender(Recommender):
         assert(x.shape == (D,))
 
         means = np.mean(cluster, axis=0)
+        varss = np.var(cluster, axis=0)
         for d in xrange(D):
             if x[d] > 0:
             	means[d] = 0
+            if means[d] == 0 or varss[d] == 0:
+            	varss[d] = 1
         return np.argmax(means)
 
     # given an image name, return what cluster the image is in

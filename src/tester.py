@@ -22,7 +22,7 @@ import matplotlib.image as mpimg
 import matplotlib.patches as patches
 
 amount = config.amount
-ranks, names, histograms = data.getBandHistograms(amount, cut=True, big=False)
+ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
 
 def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     """
@@ -102,14 +102,14 @@ def colorError(removed, recommended):
     s = 0
     for i in xrange(n):
     	s += image.binSquareDistance(removed[i], recommended[i])
-    return s / (n * 256 * 3)
+    return float(s) / (n * 256 * 3)
 
 def pickRandomColor(histogram):
     maxVal = np.amax(histogram)
     top_threshold = maxVal / 10.
     bottom_threshold = maxVal / 20.
 
-    p = round(maxVal) + 1
+    p = random.randint(0, len(histogram) - 1)
     while histogram[p] > top_threshold or histogram[p] < bottom_threshold:
         p = random.randint(0, len(histogram) - 1)
         top_threshold *= 1.001
@@ -152,12 +152,14 @@ print 'Kmeans Classifier'
 r = ClusterRecommender(KMeans(n_clusters=15))
 print tester(histograms, r, verbose=False)
 
+print 'Affinity Propagation Classifier'
 r = ClusterRecommender(AffinityPropagation(damping=0.8))
 print tester(histograms, r, verbose=False)
 
-print 'Kmeans Classifier'
-r = ClusterRecommender(KMeans(n_clusters=15))
+print 'Affinity Propagation Classifier'
+r = ClusterRecommender(AffinityPropagation(damping=0.99))
 print tester(histograms, r, verbose=False)
+
 
 print 'Naive Bayes Classifier'
 print tester(histograms, GaussianNB(), verbose=False)
