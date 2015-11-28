@@ -123,7 +123,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
     percentCorrect = float(numCorrect)/(n - ignored)
     return percentCorrect
 
-def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=10, myDpi=96, sampleSize=25, amount=amount):
+def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=10, myDpi=96, sampleSize=10, amount=amount):
     """
     removed: the color that we removed from the image
     recommend: the color that was recommended from the modified image
@@ -131,8 +131,9 @@ def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=1
     clusterNames: the names of the images in the cluster we assigned this image to
     """
     imagePath = data.getDataDir(amount, cut=True, big=False)
-    fig = plt.figure(figsize=(800/myDpi, 800/myDpi), dpi=myDpi)
+    fig = plt.figure(figsize=(1024/myDpi, 1024/myDpi), dpi=myDpi)
     ax = fig.add_subplot(111)
+    plt.axis("off")
     ctr = 0
     for i in xrange(len(names)):
         if ctr > sampleSize:
@@ -145,13 +146,13 @@ def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=1
         #print rec
         try:
             imager = mpimg.imread(imagePath + names[i])
-            plt.figimage(imager, 100, i * 100)
+            plt.figimage(imager, 100, i * 50 + 100)
             ax.add_patch(patches.Rectangle((125, i * 50),50,50, facecolor=rem))
             ax.add_patch(patches.Rectangle((175, i * 50),50,50, facecolor=rec))
         except IOError:
             ax.add_patch(patches.Rectangle((125, i * 50),50,50, facecolor=rem))
             ax.add_patch(patches.Rectangle((175, i * 50),50,50, facecolor=rec))
-            #print "%s not found" % imagePath+names[i]
+            print "%s not found" % imagePath+names[i]
             pass
         ctr += 1
     ax.set_ylim([0,800])
