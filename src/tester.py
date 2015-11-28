@@ -47,7 +47,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
     trainNames = names[:m]
 
     train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
-    recommender.fit(train_histograms, train_colors, trainNames)
+    recommender.fit(train_histograms, train_colors)
     if verbose:
     	print 'Done fitting'
 
@@ -71,6 +71,9 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
     recommendedColors = np.zeros((n))
     ignored = 0
     for i in xrange(n):
+        if i % 100 == 1:
+            print 'Partial %d: %f' % (i, float(numCorrect) / i)
+
     	color, amount = colors[i], quantities[i]
         # Ignore colors that might bias us
         if count[color] > 10:
@@ -112,8 +115,6 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
         if recommendedColor == color:
             numCorrect += 1
 
-        if i % 100 == 1:
-            print 'Partial %d: %f' % (i, float(numCorrect) / (i - ignored))
 
     print 'Ignored: %d' % ignored
     print colorError(colors, recommendedColors)
@@ -205,6 +206,10 @@ print 'Whole Set Classifier'
 r = ClusterRecommender(KMeans(n_clusters=1))
 print tester(histograms, r, verbose=False)
 
+print 'Kmeans Classifier'
+r = ClusterRecommender(KMeans(n_clusters=15))
+print tester(histograms, r, verbose=False)
+
 if doPlot:
     print 'Kmeans Classifier'
     r = ClusterRecommender(KMeans(n_clusters=1))
@@ -231,9 +236,7 @@ if doPlot:
     print 'Affinity Propagation Classifier'
     r = ClusterRecommender(AffinityPropagation(damping=0.999))
     print tester(histograms, r, verbose=False)
-#print 'Affinity Propagation Classifier'
-#r = ClusterRecommender(AffinityPropagation(damping=0.7))
-#print tester(histograms, r, verbose=False)
+
 
     print 'Affinity Propagation Classifier'
     r = ClusterRecommender(AffinityPropagation(damping=0.7))
@@ -256,3 +259,12 @@ print tester(histograms, r, verbose=False, plot=True)
 print 'Kmeans Classifier'
 r = ClusterRecommender(KMeans(n_clusters=15))
 print tester(histograms, r, verbose=False)
+
+print 'Naive Bayes Classifier'
+print tester(histograms, GaussianNB(), verbose=False)
+
+print 'Random Forest Classifier'
+print tester(histograms, RandomForestClassifier())
+#print 'Affinity Propagation Classifier'
+#r = ClusterRecommender(AffinityPropagation(damping=0.7))
+#print tester(histograms, r, verbose=False)

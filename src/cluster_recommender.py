@@ -18,19 +18,24 @@ class ClusterRecommender(Recommender):
         self.amount = amount
         self.cluster_type = cluster_type
         self.highFactor = highFactor
+<<<<<<< HEAD
         self.ranks, self.names, self.histograms = data.getBandHistograms(amount, cut=True, big=False)
         self.clusterNames = {}
+=======
+        #self.ranks, self.names, self.histograms = data.getHistograms(amount, cut=True, big=False)
+        #self.clusterNames = {}
+>>>>>>> Pulling
 
     # TODO: find another way to keep track of clusters and the name of the images that
     # belong in those cluster, pretty bad that we need to pass names to fit
-    def fit(self, train_data, target_classes, names):
+    def fit(self, train_data, target_classes):
         self.train_data = train_data
-        clusterNames = [(target_classes[i], names[i]) for i in xrange(len(target_classes))]
+        #clusterNames = [(target_classes[i], names[i]) for i in xrange(len(target_classes))]
         clusterDict = defaultdict(list)
 
-        for tup in clusterNames:
-            clusterDict[tup[0]].append(tup[1])
-        self.clusterNames = clusterDict
+        #for tup in clusterNames:
+        #    clusterDict[tup[0]].append(tup[1])
+        #self.clusterNames = clusterDict
 
         # Load both the kmeans object and the already calculated clusters
         #self.kmeans = joblib.load('./../persist/%s-%s.pkl' % (self.amount, self.cluster_type))
