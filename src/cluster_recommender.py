@@ -18,43 +18,31 @@ class ClusterRecommender(Recommender):
         self.amount = amount
         self.cluster_type = cluster_type
         self.highFactor = highFactor
-<<<<<<< HEAD
         self.ranks, self.names, self.histograms = data.getBandHistograms(amount, cut=True, big=False)
         self.clusterNames = {}
-=======
-        #self.ranks, self.names, self.histograms = data.getHistograms(amount, cut=True, big=False)
-        #self.clusterNames = {}
->>>>>>> Pulling
 
     # TODO: find another way to keep track of clusters and the name of the images that
     # belong in those cluster, pretty bad that we need to pass names to fit
-    def fit(self, train_data, target_classes):
+    def fitWithPlot(self, train_data, target_classes, names):
         self.train_data = train_data
-        #clusterNames = [(target_classes[i], names[i]) for i in xrange(len(target_classes))]
+        clusterNames = [(target_classes[i], names[i]) for i in xrange(len(target_classes))]
         clusterDict = defaultdict(list)
 
-        #for tup in clusterNames:
-        #    clusterDict[tup[0]].append(tup[1])
-        #self.clusterNames = clusterDict
-
-        # Load both the kmeans object and the already calculated clusters
-        #self.kmeans = joblib.load('./../persist/%s-%s.pkl' % (self.amount, self.cluster_type))
+        for tup in clusterNames:
+            clusterDict[tup[0]].append(tup[1])
+        self.clusterNames = clusterDict
 
         result = self.model.fit_predict(train_data)
         self.clusters = ml.clusterResultsToArray(train_data, result)
-        #clusters = data.readClustersAsDict('%s-%s.csv' % (self.amount, self.cluster_type))
 
-        # We store an array of clusters
-        #self.clusters = data.readClusters('%s-%s.csv' % (self.amount, self.cluster_type))
-        #for i in xrange(len(self.histograms)):
-            # sites are uniquely identified by rank
-        #    c = clusters[ranks[i]]
-        #    if c == p:
-        #        C.append(self.histograms[i])
-        #C = np.array(C)
         self.swan = self.findSwanAttribute(self.clusters[0])
 
 
+    def fit(self, train_data, target_classes):
+        self.train_data = train_data
+        result = self.model.fit_predict(train_data)
+        self.clusters = ml.clusterResultsToArray(train_data, result)
+        self.swan = self.findSwanAttribute(self.clusters[0])
 
     def predict(self, x):
         p = self.model.predict(x)
