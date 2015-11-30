@@ -123,7 +123,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
     percentCorrect = float(numCorrect)/(n - ignored)
     return percentCorrect
 
-def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=10, myDpi=96, sampleSize=10, amount=amount):
+def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=10, myDpi=96, sampleSize=12, amount=amount):
     """
     removed: the color that we removed from the image
     recommend: the color that was recommended from the modified image
@@ -136,7 +136,7 @@ def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=1
     plt.axis("off")
     ctr = 0
     for i in xrange(len(names)):
-        if ctr > sampleSize:
+        if ctr >= sampleSize:
             break
         rr, rg, rb = image.binToRGB(removed[i])
         cr, cg, cb = image.binToRGB(recommend[i])
@@ -146,17 +146,17 @@ def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=1
         #print rec
         try:
             imager = mpimg.imread(imagePath + names[i])
-            plt.figimage(imager, 100, i * 50 + 100)
-            ax.add_patch(patches.Rectangle((125, i * 50),50,50, facecolor=rem))
-            ax.add_patch(patches.Rectangle((175, i * 50),50,50, facecolor=rec))
+            plt.figimage(imager, 100, (i * 50) + 80)
+            ax.add_patch(patches.Rectangle((125, i * 82),50,50, facecolor=rem))
+            ax.add_patch(patches.Rectangle((175, i * 82),50,50, facecolor=rec))
         except IOError:
             ax.add_patch(patches.Rectangle((125, i * 50),50,50, facecolor=rem))
             ax.add_patch(patches.Rectangle((175, i * 50),50,50, facecolor=rec))
             print "%s not found" % imagePath+names[i]
             pass
         ctr += 1
-    ax.set_ylim([0,800])
-    ax.set_xlim([0,800])
+    ax.set_ylim([0,1024])
+    ax.set_xlim([0,1024])
     plt.show()
         #remNorm = (float(rr)/256, float(rg)/256, float(rb)/256)
         #recNorm = (float(cr)/256, float(cg)/256, float(cb)/256)
@@ -212,8 +212,5 @@ def removeColors(bHistograms, highFactor):
 
 
 r = ClusterRecommender(KMeans(n_clusters=200))
-#r = ClusterRecommender(AffinityPropagation(damping=0.5))
 print tester(histograms, r, verbose=False, plot=True)
 
-#print 'Naive Bayes Classifier'
-#print tester(histograms, GaussianNB(), verbose=False, plot=True)
