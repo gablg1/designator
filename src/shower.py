@@ -23,6 +23,7 @@ import matplotlib.patches as patches
 
 amount = config.amount
 ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
+SAMPLE_SIZE = 10
 
 def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, plot=False):
     """
@@ -41,14 +42,16 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
         the original and the modified
     """
     xTrain, xTest = ml.splitData(data, fractionTrain)
+    xTest = xTest[:SAMPLE_SIZE, :]
+
     n, D = xTest.shape
     assert(D == image.BINNED_DIM)
     m = xTrain.shape[0]
 
-    trainNames = names[:m]
+    train_names = names[:m]
 
     train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
-    recommender.fit(train_histograms, train_colors)
+    recommender.fitWithPlot(train_histograms, train_colors, train_names)
     if verbose:
     	print 'Done fitting'
 
@@ -68,6 +71,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
     for color in colors:
         count[color] += 1
 
+    clusters = []
     recommendedColors = np.zeros((n))
     ignored = 0
     for i in xrange(n):
@@ -91,6 +95,8 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
         #   print 'Recommended from website %s' % names[elem]
 
         # This is used for vanilla classifiers
+        cluster_names = recommender.clusterNames(hist)
+        clusters.append(cluster_names)
         recommendedColor = recommender.predict(hist)
         r1, g1, b1 = image.binToRGB(color)
         r2, g2, b2 = image.binToRGB(recommendedColor)
@@ -114,29 +120,36 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
 
         if recommendedColor == color:
             numCorrect += 1
+    assert(len(clusters) == n)
 
 
     print 'Ignored: %d' % ignored
     print colorError(colors, recommendedColors)
     if plot:
-        plotRecommend(colorRemoved, colorRecommend, namesRecommend, clusterLoc)
+        plotRecommend(colorRemoved, colorRecommend, namesRecommend, clusters)
     percentCorrect = float(numCorrect)/(n - ignored)
     return percentCorrect
 
-def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=10, myDpi=96, sampleSize=10, amount=amount):
+def plotCluster(cluster, x, y, plotter):
+    imagePath = data.getDataDir(amount=config.amount, cut=True, big=False)
+    for i in xrange(len(cluster)):
+        imager = mpimg.imread(imagePath + cluster[i])
+        plotter.figimage(imager, i * 50 + x, y)
+
+def plotRecommend(removed, recommend, names, clusters, xFactor=10, yFactor=10, myDpi=96):
     """
     removed: the color that we removed from the image
     recommend: the color that was recommended from the modified image
     names: the name of the image we were making a recommendation about
     clusterNames: the names of the images in the cluster we assigned this image to
     """
-    imagePath = data.getDataDir(amount, cut=True, big=False)
+    imagePath = data.getDataDir(config.amount, cut=True, big=False)
     fig = plt.figure(figsize=(1024/myDpi, 1024/myDpi), dpi=myDpi)
     ax = fig.add_subplot(111)
     plt.axis("off")
     ctr = 0
     for i in xrange(len(names)):
-        if ctr > sampleSize:
+        if ctr > SAMPLE_SIZE:
             break
         rr, rg, rb = image.binToRGB(removed[i])
         cr, cg, cb = image.binToRGB(recommend[i])
@@ -144,14 +157,16 @@ def plotRecommend(removed, recommend, names, clusterNames, xFactor=10, yFactor=1
         rec = '#%02x%02x%02x' % (cr, cg, cb)
         #print rem
         #print rec
+        SQ_SIZE = 30
+        SQ_OFFSET = 55
+        ax.add_patch(patches.Rectangle((125, i * SQ_OFFSET + 270),SQ_SIZE,SQ_SIZE, facecolor=rem))
+        ax.add_patch(patches.Rectangle((175, i * SQ_OFFSET + 270),SQ_SIZE,SQ_SIZE, facecolor=rec))
         try:
             imager = mpimg.imread(imagePath + names[i])
-            plt.figimage(imager, 100, i * 50 + 100)
-            ax.add_patch(patches.Rectangle((125, i * 50),50,50, facecolor=rem))
-            ax.add_patch(patches.Rectangle((175, i * 50),50,50, facecolor=rec))
+            fig.figimage(imager, 125, i * 50 + 350)
+
+            plotCluster(clusters[i], 500, i * 50 + 350, fig)
         except IOError:
-            ax.add_patch(patches.Rectangle((125, i * 50),50,50, facecolor=rem))
-            ax.add_patch(patches.Rectangle((175, i * 50),50,50, facecolor=rec))
             print "%s not found" % imagePath+names[i]
             pass
         ctr += 1
@@ -213,7 +228,7 @@ def removeColors(bHistograms, highFactor):
 
 r = ClusterRecommender(KMeans(n_clusters=200))
 #r = ClusterRecommender(AffinityPropagation(damping=0.5))
-print tester(histograms, r, verbose=False, plot=True)
+print tester(histograms, r, verbose=True, plot=True)
 
 #print 'Naive Bayes Classifier'
 #print tester(histograms, GaussianNB(), verbose=False, plot=True)
