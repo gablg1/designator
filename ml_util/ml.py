@@ -60,6 +60,19 @@ def clusterResultsToArray(train_data, result):
     	clusters[i] = np.array(clusters[i])
     return clusters
 
+def clusterResultsToNonNpArray(train_data, result):
+    n = len(train_data)
+    assert(len(result) == n)
+
+    numClusters = len(set(result))
+    print numClusters
+    clusters = [[] for i in xrange(numClusters)]
+    for i in xrange(n):
+        cluster = result[i]
+        clusters[cluster].append(train_data[i])
+
+    return clusters
+
 def batches(data, batch_size=100):
     n = data.shape[0]
     return np.array_split(data, n / batch_size)

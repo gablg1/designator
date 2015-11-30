@@ -19,23 +19,16 @@ class ClusterRecommender(Recommender):
         self.cluster_type = cluster_type
         self.highFactor = highFactor
         self.ranks, self.names, self.histograms = data.getBandHistograms(amount, cut=True, big=False)
-        self.clusterNames = {}
 
     # TODO: find another way to keep track of clusters and the name of the images that
     # belong in those cluster, pretty bad that we need to pass names to fit
     def fitWithPlot(self, train_data, target_classes, names):
         self.train_data = train_data
-        clusterNames = [(target_classes[i], names[i]) for i in xrange(len(target_classes))]
-        clusterDict = defaultdict(list)
-
-        for tup in clusterNames:
-            clusterDict[tup[0]].append(tup[1])
-        self.clusterNames = clusterDict
 
         result = self.model.fit_predict(train_data)
-        self.clusters = ml.clusterResultsToArray(train_data, result)
 
-        self.swan = self.findSwanAttribute(self.clusters[0])
+        self.cluster_names = ml.clusterResultsToNonNpArray(names, result)
+        self.clusters = ml.clusterResultsToArray(train_data, result)
 
 
     def fit(self, train_data, target_classes):
@@ -44,10 +37,18 @@ class ClusterRecommender(Recommender):
         self.clusters = ml.clusterResultsToArray(train_data, result)
         self.swan = self.findSwanAttribute(self.clusters[0])
 
-    def predict(self, x):
+    def clusterNames(self, x):
         p = self.model.predict(x)
-        C = self.clusters[p]
+        print self.cluster_names[p]
+        return self.cluster_names[p]
 
+    def cluster(self, x):
+        p = self.model.predict(x)
+        return self.clusters[p]
+
+    def predict(self, x):
+
+        C = self.cluster(x)
         return self.uglyDucklingRecommend(x, C)
 
     # Takes in two 1 x D image vectors and recommends
