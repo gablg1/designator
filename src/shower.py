@@ -14,6 +14,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from data import data
 from data import image
 import config
+import tester
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
 from random_recommender import RandomRecommender
@@ -25,7 +26,7 @@ amount = config.amount
 ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
 SAMPLE_SIZE = 10
 
-def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, plot=False):
+def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot=False):
     """
     Parameters:
         cluster: an array of arrays
@@ -50,12 +51,16 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
 
     train_names = names[:m]
 
-    train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
-    recommender.fitWithPlot(train_histograms, train_colors, train_names)
+    train_colors, _, train_histograms = tester.removeColors(xTrain, highFactor=highFactor)
+    try:
+        recommender.fitWithPlot(train_histograms, train_colors, train_names)
+    except:
+        print train_colors
+        recommender.fit(train_histograms, train_colors)
     if verbose:
     	print 'Done fitting'
 
-    colors, quantities, histograms = removeColors(xTest, highFactor=highFactor)
+    colors, quantities, histograms = tester.removeColors(xTest, highFactor=highFactor)
     assert(colors.shape[0] == n)
     assert(histograms.shape[0] == n)
     numCorrect = 0
@@ -95,8 +100,12 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
         #   print 'Recommended from website %s' % names[elem]
 
         # This is used for vanilla classifiers
-        cluster_names = recommender.clusterNames(hist)
-        clusters.append(cluster_names)
+        try:
+            cluster_names = recommender.clusterNames(hist)
+            clusters.append(cluster_names)
+        except:
+            pass
+
         recommendedColor = recommender.predict(hist)
         r1, g1, b1 = image.binToRGB(color)
         r2, g2, b2 = image.binToRGB(recommendedColor)
@@ -120,11 +129,10 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False, pl
 
         if recommendedColor == color:
             numCorrect += 1
-    assert(len(clusters) == n)
 
 
     print 'Ignored: %d' % ignored
-    print colorError(colors, recommendedColors)
+    print tester.colorError(colors, recommendedColors)
     if plot:
         plotRecommend(colorRemoved, colorRecommend, namesRecommend, clusters)
     percentCorrect = float(numCorrect)/(n - ignored)
@@ -167,7 +175,8 @@ def plotRecommend(removed, recommend, names, clusters, xFactor=10, yFactor=10, m
             imager = mpimg.imread(imagePath + names[i])
             fig.figimage(imager, 125, i * 50 + BASE_OFFSET)
 
-            plotCluster(clusters[i], 300, i * 50 + BASE_OFFSET, fig)
+            if len(clusters) > 0:
+                plotCluster(clusters[i], 300, i * 50 + BASE_OFFSET, fig)
         except IOError:
             print "%s not found" % imagePath+names[i]
             pass
@@ -179,57 +188,12 @@ def plotRecommend(removed, recommend, names, clusters, xFactor=10, yFactor=10, m
         #recNorm = (float(cr)/256, float(cg)/256, float(cb)/256)
 
 
-def colorError(removed, recommended):
-    n = len(removed)
-    assert(len(recommended) == n)
-    s = 0
-    for i in xrange(n):
-    	s += image.binSquareDistance(removed[i], recommended[i])
-    return s / (n * 256 * 3)
 
-def pickRandomColor(histogram):
-    maxVal = np.amax(histogram)
-    top_threshold = maxVal / 10.
-    bottom_threshold = maxVal / 20.
+#r = ClusterRecommender(KMeans(n_clusters=50))
+r = ClusterRecommender(AffinityPropagation(damping=0.99))
+#print show(histograms, GaussianNB(), verbose=True, plot=True)
 
-    p = maxVal
-    while histogram[p] > top_threshold or histogram[p] < bottom_threshold:
-        p = random.randint(0, len(histogram) - 1)
-        top_threshold *= 1.001
-        if top_threshold >= maxVal:
-        	top_threshold = maxVal
-        bottom_threshold *= 0.999
-        if bottom_threshold <= 0:
-        	bottom_threshold = 0
-    return p
-
-def pickColorToRemove(histogram, highFactor):
-    prevDiff = 100000
-    maxVal = np.amax(histogram)
-    index = None
-    for i in xrange(1, len(histogram)):
-        ratio = np.fabs(histogram[i]/maxVal - highFactor)
-        if ratio < prevDiff:
-            index = i
-            prevDiff = ratio
-    assert(index != None)
-    return index
-
-def removeColors(bHistograms, highFactor):
-    N = bHistograms.shape[0]
-    ret = np.copy(bHistograms)
-    colorsRemoved = []
-    quantityRemoved = []
-    for i in xrange(N):
-    	color = pickRandomColor(bHistograms[i])
-    	colorsRemoved.append(color)
-    	quantityRemoved.append(bHistograms[i, color])
-    	ret[i, color] = 0
-    return np.array(colorsRemoved), np.array(quantityRemoved), ret
-
-
-r = ClusterRecommender(KMeans(n_clusters=50))
-#r = ClusterRecommender(AffinityPropagation(damping=0.5))
-print tester(histograms, r, verbose=True, plot=True)
+#r = ClusterRecommender(KMeans(n_clusters=1))
+print show(histograms, r, verbose=True, plot=True)
 
 

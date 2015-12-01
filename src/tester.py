@@ -24,7 +24,7 @@ import matplotlib.patches as patches
 amount = config.amount
 ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
 
-def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
+def test(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False):
     """
     Parameters:
         cluster: an array of arrays
@@ -59,6 +59,11 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
     for color in colors:
         count[color] += 1
 
+    tmp = count[np.where(count > 0)]
+    color_mean = np.mean(tmp)
+    color_stdev = np.std(tmp)
+    print 'Color mean and stdev', color_mean, color_stdev
+
     recommendedColors = np.zeros((n))
     ignored = 0
     for i in xrange(n):
@@ -67,7 +72,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
 
     	color, amount = colors[i], quantities[i]
         # Ignore colors that might bias us
-        if count[color] > 10:
+        if count[color] > color_mean + color_stdev:
         	ignored += 1
         	continue
 
@@ -91,7 +96,7 @@ def tester(data, recommender, fractionTrain=.5, highFactor=.1, verbose=False):
             numCorrect += 1
 
 
-    print 'Ignored: %d' % ignored
+    print 'Ignored: %d. Used: %d' % (ignored, n - ignored)
     print colorError(colors, recommendedColors)
     percentCorrect = float(numCorrect)/(n - ignored)
     return percentCorrect
@@ -144,28 +149,29 @@ def removeColors(bHistograms, highFactor):
     	ret[i, color] = 0
     return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
-print 'Whole Set Classifier'
-r = ClusterRecommender(KMeans(n_clusters=1))
-print tester(histograms, r, verbose=False)
+if __name__ == '__main__':
+    print 'Whole Set Classifier'
+    r = ClusterRecommender(KMeans(n_clusters=1))
+    print test(histograms, r, verbose=False)
 
-print 'Kmeans Classifier'
-r = ClusterRecommender(KMeans(n_clusters=15))
-print tester(histograms, r, verbose=False)
+    print 'Kmeans Classifier'
+    r = ClusterRecommender(KMeans(n_clusters=15))
+    print test(histograms, r, verbose=False)
 
-print 'Affinity Propagation Classifier'
-r = ClusterRecommender(AffinityPropagation(damping=0.8))
-print tester(histograms, r, verbose=False)
+    print 'Affinity Propagation Classifier'
+    r = ClusterRecommender(AffinityPropagation(damping=0.8))
+    print test(histograms, r, verbose=False)
 
-print 'Affinity Propagation Classifier'
-r = ClusterRecommender(AffinityPropagation(damping=0.99))
-print tester(histograms, r, verbose=False)
+    print 'Affinity Propagation Classifier'
+    r = ClusterRecommender(AffinityPropagation(damping=0.99))
+    print test(histograms, r, verbose=False)
 
 
-print 'Naive Bayes Classifier'
-print tester(histograms, GaussianNB(), verbose=False)
+    print 'Naive Bayes Classifier'
+    print test(histograms, GaussianNB(), verbose=False)
 
-print 'Random Forest Classifier'
-print tester(histograms, RandomForestClassifier())
+    print 'Random Forest Classifier'
+    print test(histograms, RandomForestClassifier())
 #print 'Affinity Propagation Classifier'
 #r = ClusterRecommender(AffinityPropagation(damping=0.7))
-#print tester(histograms, r, verbose=False)
+#print test(histograms, r, verbose=False)

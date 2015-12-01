@@ -39,7 +39,6 @@ class ClusterRecommender(Recommender):
 
     def clusterNames(self, x):
         p = self.model.predict(x)
-        print self.cluster_names[p]
         return self.cluster_names[p]
 
     def cluster(self, x):
