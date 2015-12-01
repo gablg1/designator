@@ -228,8 +228,7 @@ def removeColors(bHistograms, highFactor):
     return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
 
-r = ClusterRecommender(KMeans(n_clusters=200))
-
+r = ClusterRecommender(KMeans(n_clusters=50))
 #r = ClusterRecommender(AffinityPropagation(damping=0.5))
 print tester(histograms, r, verbose=True, plot=True)
 

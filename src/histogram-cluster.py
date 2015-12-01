@@ -48,4 +48,6 @@ def cluster(model):
         for i in xrange(len(clusters)):
             writer.writerow([clusters[i], ranks[i], website_names[i]])
 
-cluster(AffinityPropagation(damping=0.99))
+#cluster(AffinityPropagation(damping=0.99))
+cluster(KMeans(n_clusters=50))
+

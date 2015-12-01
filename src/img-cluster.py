@@ -51,4 +51,5 @@ def cluster(model):
     to = '../persist/' + amount + '-img-clusters.pkl'
     joblib.dump(model, to)
 
-cluster(AffinityPropagation(damping=0.8))
+#cluster(AffinityPropagation(damping=0.8))
+cluster(KMeans(n_clusters=50))
