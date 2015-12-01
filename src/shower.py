@@ -190,10 +190,11 @@ def plotRecommend(removed, recommend, names, clusters, xFactor=10, yFactor=10, m
 
 
 #r = ClusterRecommender(KMeans(n_clusters=50))
-r = ClusterRecommender(AffinityPropagation(damping=0.99))
-#print show(histograms, GaussianNB(), verbose=True, plot=True)
+#r = ClusterRecommender(AffinityPropagation(damping=0.99))
 
 #r = ClusterRecommender(KMeans(n_clusters=1))
-print show(histograms, r, verbose=True, plot=True)
+#print show(histograms, r, verbose=True, plot=True)
+
+print show(histograms, RandomForestClassifier(), verbose=True, plot=True)
 
 
