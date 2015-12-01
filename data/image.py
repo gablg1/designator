@@ -30,10 +30,9 @@ def imgToBinnedHistogram(filepath):
     return hist
 
 def RGBToBin(r, g, b):
-    b = (r * K ** 2 + g * K + b) / BIN_SIZE
-    #r1, g1, b1 = binToRGB(b)
-    #assert(b == b1 and r1 == r and g1 == g)
-    return b
+    B = (r / BIN_SIZE) * K ** 2 + (g / BIN_SIZE) * K + b / BIN_SIZE
+    r1, g1, b1 = binToRGB(B)
+    return B
 
 def binToRGB(bin_number):
     bin_number = int(bin_number)

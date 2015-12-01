@@ -24,7 +24,8 @@ print "Found %d %s images" % (len(imgs), fileExt)
 histograms = []
 for i in xrange(len(imgs)):
     print i
-    histograms.append(image.imgToBinnedHistogram(path + imgs[i]))
+    hist = image.imgToBinnedHistogram(path + imgs[i])
+    histograms.append(ml.normalizeData(np.array(hist)))
 assert(len(histograms) == len(imgs))
 print "Each histogram has %d elements" % len(histograms[0])
 
