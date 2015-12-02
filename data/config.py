@@ -1,3 +1,3 @@
-amount = 'top-1k'
+amount = 'top-15k'
 cut = True
 big = False

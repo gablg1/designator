@@ -60,7 +60,7 @@ class ClusterRecommender(Recommender):
 
     def predict(self, x):
         C = self.cluster(x)
-        return core.uglyDucklingRecommend(x, C, var=True)
+        return core.uglyDucklingRecommend(x, C, var=False)
 
     def buildCluster(self, x, size=15):
         n = len(self.train_data)

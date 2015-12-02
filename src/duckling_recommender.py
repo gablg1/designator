@@ -61,7 +61,7 @@ class DucklingRecommender(Recommender):
 
     def predict(self, x):
         C = self.buildCluster(x, self.cluster_size)
-        return core.uglyDucklingRecommend(x, C, var=True)
+        return core.uglyDucklingRecommend(x, C, var=False)
 
     def buildCluster(self, x, size):
         n = len(self.train_data)

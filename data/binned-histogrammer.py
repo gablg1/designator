@@ -24,7 +24,6 @@ print "Found %d %s images" % (len(imgs), fileExt)
 histograms = []
 for i in xrange(len(imgs)):
     hist = image.imgToBinnedHistogram(path + imgs[i])
-    print np.count_nonzero(hist)
     if np.count_nonzero(hist) < 3:
     	print hist
         print 'Removing', imgs[i]
