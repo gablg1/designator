@@ -95,7 +95,7 @@ class ClusterRecommender(Recommender):
             	means[d] = 0
             if means[d] == 0 or varss[d] == 0:
             	varss[d] = 1
-        return np.argmax(means)
+        return np.argmax(means /varss )
 
     # given an image name, return what cluster the image is in
     # if this is something we've trained on, then train should
