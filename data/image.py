@@ -2,6 +2,10 @@ from PIL import Image
 import numpy as np
 from scipy.special import cbrt
 
+import os, sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from ml_util import ml
+
 COLOR_INTENSITIES = 256
 BAND_HISTOGRAM_DIM = COLOR_INTENSITIES * 3
 BIN_SIZE = 10
@@ -24,6 +28,20 @@ def imgToBinnedHistogram(filepath):
             r, g, b = tuple(binned[i, j])
             bucket = RGBToBin(r, g, b)
             hist[bucket] += 1
+
+    # should use the below instead (sparse matrix)
+    #return scipy.sparse.csr_matrix(hist.ravel())
+    return hist
+
+def imgArrayToBinnedHistogram(imgArray):
+    assert(ml.isVector(imgArray))
+    M = len(imgArray)
+    hist = np.zeros((K * K * K))
+    i = 0
+    while i + 2 < M:
+    	r, g, b = imgArray[i], imgArray[i+1], imgArray[i+2]
+        bucket = RGBToBin(r, g, b)
+        hist[bucket] += 1
 
     # should use the below instead (sparse matrix)
     #return scipy.sparse.csr_matrix(hist.ravel())
@@ -60,7 +78,8 @@ def imgToBandHistogram(filepath):
 
 def imgToArray(filepath):
     try:
-        img = np.array(Image.open(filepath))
+        img = np.array(Image.open(filepath).convert('RGB'))
     except IOError as e:
         print e
-    return img[:, :, :3].ravel()
+    ret = img[:, :, :3].ravel()
+    return ret

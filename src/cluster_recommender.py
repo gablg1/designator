@@ -6,6 +6,7 @@ import numpy as np
 import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from data import data
+from data import image
 #from data import image
 import config
 from ml_util import ml
@@ -31,10 +32,14 @@ class ClusterRecommender(Recommender):
         self.clusters = ml.clusterResultsToArray(train_data, result)
 
 
-    def fit(self, train_data, target_classes):
+    def fit(self, train_data, target_classes, histograms=[]):
         self.train_data = train_data
         result = self.model.fit_predict(train_data)
-        self.clusters = ml.clusterResultsToArray(train_data, result)
+        if len(histograms) > 0:
+            assert(histograms.shape[0] == train_data.shape[0])
+            self.clusters = ml.clusterResultsToArray(histograms, result)
+        else:
+            self.clusters = ml.clusterResultsToArray(train_data, result)
         self.swan = self.findSwanAttribute(self.clusters[0])
 
     def clusterNames(self, x):
@@ -44,6 +49,13 @@ class ClusterRecommender(Recommender):
     def cluster(self, x):
         p = self.model.predict(x)
         return self.clusters[p]
+
+    def predictImg(self, imgArray, hist):
+        # We use the image for clustering
+        C = self.cluster(imgArray)
+
+        # and the corresponding histogram for ugly duckling
+        return self.uglyDucklingRecommend(hist, C)
 
     def predict(self, x):
 
@@ -92,9 +104,9 @@ class ClusterRecommender(Recommender):
         varss = np.var(cluster, axis=0)
         for d in xrange(D):
             if x[d] > 0:
-            	means[d] = 0
+                means[d] = 0
             if means[d] == 0 or varss[d] == 0:
-            	varss[d] = 1
+                varss[d] = 1
         return np.argmax(means /varss )
 
     # given an image name, return what cluster the image is in
