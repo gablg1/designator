@@ -23,10 +23,14 @@ print "Found %d %s images" % (len(imgs), fileExt)
 
 histograms = []
 for i in xrange(len(imgs)):
-    print i
     hist = image.imgToBinnedHistogram(path + imgs[i])
-    histograms.append(ml.normalizeData(np.array(hist)))
-assert(len(histograms) == len(imgs))
+    print np.count_nonzero(hist)
+    if np.count_nonzero(hist) < 3:
+    	print hist
+        print 'Removing', imgs[i]
+        os.remove(path + imgs[i])
+    else:
+        histograms.append(ml.normalizeData(np.array(hist)))
 print "Each histogram has %d elements" % len(histograms[0])
 
 to = path + 'histograms.csv'

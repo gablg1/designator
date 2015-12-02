@@ -18,6 +18,7 @@ import tester
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
 from random_recommender import RandomRecommender
+from duckling_recommender import DucklingRecommender
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.patches as patches
@@ -190,7 +191,8 @@ def plotRecommend(removed, recommend, names, clusters, xFactor=10, yFactor=10, m
 
 
 #r = ClusterRecommender(KMeans(n_clusters=50))
-r = ClusterRecommender(AffinityPropagation(damping=0.8))
+#r = ClusterRecommender(AffinityPropagation(damping=0.8))
+r = DucklingRecommender(cluster_size=15)
 
 #r = ClusterRecommender(KMeans(n_clusters=1))
 print show(histograms, r, verbose=True, plot=True)
