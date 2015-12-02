@@ -83,8 +83,8 @@ def test(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False):
             print 'Testing site %s' % names[i]
             print 'Amount remmoved %d' % amount
         hist = histograms[i]
-
-        intersectionRatio += core.clusterIntersectionRatio(hist, recommender.cluster(hist))
+        cluster = recommender.cluster(hist)
+        intersectionRatio += core.clusterIntersectionRatio(hist, cluster)
         #recommender.testClusters(hist)
         recommendedColor = recommender.predict(hist)
         r1, g1, b1 = image.binToRGB(color)

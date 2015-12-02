@@ -23,11 +23,7 @@ class DucklingRecommender(Recommender):
     # belong in those cluster, pretty bad that we need to pass names to fit
     def fitWithPlot(self, train_data, target_classes, names):
         self.train_data = train_data
-
-        result = self.model.fit_predict(train_data)
-
-        self.cluster_names = ml.clusterResultsToNonNpArray(names, result)
-        self.clusters = ml.clusterResultsToArray(train_data, result)
+        self.names = names
 
     def fit(self, train_data, target_classes, histograms=[]):
         self.train_data = train_data

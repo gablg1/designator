@@ -73,6 +73,9 @@ def clusterResultsToNonNpArray(train_data, result):
 
     return clusters
 
+def maxArgs(a, n_elements):
+    return np.argpartition(a, -n_elements)[-n_elements:]
+
 def batches(data, batch_size=100):
     n = data.shape[0]
     return np.array_split(data, n / batch_size)
