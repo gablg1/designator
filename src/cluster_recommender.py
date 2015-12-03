@@ -47,7 +47,7 @@ class ClusterRecommender(Recommender):
         p = self.model.predict(x)
         return self.cluster_names[p]
 
-    def cluster(self, x):
+    def cluster(self, x, img=None):
         p = self.model.predict(x)
         return self.clusters[p]
 
@@ -66,8 +66,8 @@ class ClusterRecommender(Recommender):
         n = len(self.train_data)
         ratio = np.zeros(n)
         for i in xrange(n):
-       	    ratio[i] = intersectionRatio(x, self.train_data[i])
-       	max_args = np.argpartition(ratio, -size)[-size:]
+            ratio[i] = intersectionRatio(x, self.train_data[i])
+        max_args = np.argpartition(ratio, -size)[-size:]
 
         return self.train_data[max_args]
 

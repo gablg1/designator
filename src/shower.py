@@ -25,7 +25,7 @@ import matplotlib.patches as patches
 
 amount = config.amount
 ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
-SAMPLE_SIZE = 4
+SAMPLE_SIZE = 10
 
 def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot=False):
     """
@@ -44,14 +44,17 @@ def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot
         the original and the modified
     """
     xTrain, xTest = ml.splitData(data, fractionTrain)
-    np.random.shuffle(xTest)
-    xTest = xTest[:SAMPLE_SIZE, :]
+    train_names, test_names = ml.splitData(np.array(names), fractionTrain)
+    assert(len(train_names) == len(xTrain))
+    assert(len(test_names) == len(xTest))
 
     n, D = xTest.shape
-    assert(D == image.BINNED_DIM)
-    m = xTrain.shape[0]
-
-    train_names = names[:m]
+    indices = np.random.choice(n, SAMPLE_SIZE)
+    xTest = xTest[indices, :]
+    test_names = test_names[indices]
+    assert(xTest.shape == (SAMPLE_SIZE, D))
+    assert(test_names.shape == (SAMPLE_SIZE, ))
+    n = SAMPLE_SIZE
 
     train_colors, _, train_histograms = tester.removeColors(xTrain, highFactor=highFactor)
     try:
@@ -91,10 +94,15 @@ def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot
             ignored += 1
             continue
 
+        hist = histograms[i]
+        # Ignore colors that are basically the background
+        if hist[color] > 0.4:
+        	ignored += 1
+        	continue
+
         if verbose:
             print 'Testing site %s' % names[i]
             print 'Amount remmoved %d' % amount
-        hist = histograms[i]
 
         # This is used for cluster recommendations
         #elem, recommendedColor = recommender.recommendFromCluster(hist, xTrain)
@@ -133,7 +141,7 @@ def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot
         if plot:
             colorRemoved.append(color)
             colorRecommend.append(recommendedColor)
-            namesRecommend.append(names[i])
+            namesRecommend.append(test_names[i])
             #clusterIndex = recommender.returnClusterTest(hist)
             #clusterNames = recommender.clusterNames[clusterIndex]
             #clusterIndexList.append(clusterLin)

@@ -64,6 +64,8 @@ def uglyDucklingRecommend(x, cluster, var=False):
     means = np.mean(cluster, axis=0)
     varss = np.var(cluster, axis=0)
     for d in xrange(D):
+        if means[d] > 0.4:
+        	means[d] = 0
         if x[d] > 0:
             means[d] = 0
         if means[d] == 0 or varss[d] == 0:

@@ -16,6 +16,7 @@ from data import image
 import config
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
+from duckling_recommender import DucklingRecommender
 from random_recommender import RandomRecommender
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -71,11 +72,14 @@ def test(data, names, recommender, fractionTrain=.8, highFactor=.1, verbose=Fals
 
     train_colors, _, train_data, train_histograms = removeColors(xTrain, namesTrain)
     print 'Done removing train colors'
-    recommender.fit(train_data, train_colors, train_histograms)
+    try:
+        recommender.fit(train_data, train_colors, train_histograms)
+    except:
+        recommender.fit(train_data, train_colors)
     print 'Done fitting'
 
     colors, quantities, test_imgs, test_histograms = removeColors(xTest, namesTest)
-    assert(colors.shape[0] == n)
+    n = colors.shape[0]
     assert(test_imgs.shape[0] == n)
     print 'Done removing test colors'
 
@@ -93,6 +97,7 @@ def test(data, names, recommender, fractionTrain=.8, highFactor=.1, verbose=Fals
 
     recommendedColors = np.zeros((n))
     ignored = 0
+    intersectionRatio = 0.
     for i in xrange(n):
         if i % 100 == 1:
             print 'Partial %d: %f' % (i, float(numCorrect) / i)
@@ -103,12 +108,26 @@ def test(data, names, recommender, fractionTrain=.8, highFactor=.1, verbose=Fals
             ignored += 1
             continue
 
+        img, hist = test_imgs[i], test_histograms[i]
+        # Ignore colors that are basically the background
+        if hist[color] > 0.4:
+        	ignored += 1
+        	continue
+
+        try:
+            cluster = recommender.cluster(hist, img)
+            intersectionRatio += core.clusterIntersectionRatio(hist, cluster)
+        except:
+            pass
+
         if verbose:
             print 'Testing site %s' % namesTest[i]
             print 'Amount remmoved %f' % amount
-        img, hist = test_imgs[i], test_histograms[i]
 
-        recommendedColor = recommender.predictImg(img, hist)
+        try:
+            recommendedColor = recommender.predictImg(img, hist)
+        except:
+            recommendedColor = recommender.predict(img)
         r1, g1, b1 = image.binToRGB(color)
         r2, g2, b2 = image.binToRGB(recommendedColor)
         if verbose:
@@ -124,6 +143,7 @@ def test(data, names, recommender, fractionTrain=.8, highFactor=.1, verbose=Fals
 
 
     print 'Ignored: %d. Used: %d' % (ignored, n - ignored)
+    print 'Mean cluster intersection ratio: %f' % (intersectionRatio / (n - ignored))
     print colorError(colors, recommendedColors)
     percentCorrect = float(numCorrect)/(n - ignored)
     return percentCorrect
@@ -179,26 +199,27 @@ def removeColors(data, names):
     for i in xrange(N):
         binned_histogram = BIN_HISTOGRAMS[names[i]]
         color = pickRandomColor(binned_histogram)
-        colorsRemoved.append(color)
-        quantityRemoved.append(binned_histogram[color])
 
         # actually removes the color
         most_common = np.argmax(binned_histogram)
         old = np.copy(data[i])
         new_img, px_removed = replaceColor(data[i], color, most_common)
-        assert(px_removed > 0)
+        # This assert is a little too harsh
+        #assert(px_removed > 0)
+        if px_removed == 0:
+        	continue
 
+        colorsRemoved.append(color)
+        quantityRemoved.append(binned_histogram[color])
         ret.append(new_img)
         binned_histogram[color] = 0
         binned_ret.append(binned_histogram)
     return np.array(colorsRemoved), np.array(quantityRemoved), np.array(ret), np.array(binned_ret)
 
 if __name__ == '__main__':
-
-
     print 'Kmeans Classifier'
     r = ClusterRecommender(KMeans(n_clusters=15))
-    print test(X, names, r, verbose=True)
+    print test(X, names, r, verbose=False)
 
     print 'Affinity Propagation Classifier'
     r = ClusterRecommender(AffinityPropagation(damping=0.8))
@@ -218,6 +239,7 @@ if __name__ == '__main__':
 
     print 'Random Forest Classifier'
     print test(X, names, RandomForestClassifier())
+
 #print 'Affinity Propagation Classifier'
 #r = ClusterRecommender(AffinityPropagation(damping=0.7))
 #print test(histograms, r, verbose=False)
