@@ -79,7 +79,7 @@ def test(data, names, recommender, fractionTrain=.8, highFactor=.1, verbose=Fals
     print 'Done fitting'
 
     colors, quantities, test_imgs, test_histograms = removeColors(xTest, namesTest)
-    assert(colors.shape[0] == n)
+    n = colors.shape[0]
     assert(test_imgs.shape[0] == n)
     print 'Done removing test colors'
 
@@ -199,15 +199,18 @@ def removeColors(data, names):
     for i in xrange(N):
         binned_histogram = BIN_HISTOGRAMS[names[i]]
         color = pickRandomColor(binned_histogram)
-        colorsRemoved.append(color)
-        quantityRemoved.append(binned_histogram[color])
 
         # actually removes the color
         most_common = np.argmax(binned_histogram)
         old = np.copy(data[i])
         new_img, px_removed = replaceColor(data[i], color, most_common)
-        assert(px_removed > 0)
+        # This assert is a little too harsh
+        #assert(px_removed > 0)
+        if px_removed == 0:
+        	continue
 
+        colorsRemoved.append(color)
+        quantityRemoved.append(binned_histogram[color])
         ret.append(new_img)
         binned_histogram[color] = 0
         binned_ret.append(binned_histogram)
@@ -236,6 +239,7 @@ if __name__ == '__main__':
 
     print 'Random Forest Classifier'
     print test(X, names, RandomForestClassifier())
+
 #print 'Affinity Propagation Classifier'
 #r = ClusterRecommender(AffinityPropagation(damping=0.7))
 #print test(histograms, r, verbose=False)
