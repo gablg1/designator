@@ -9,9 +9,11 @@ from data import data
 from data import image
 #from data import image
 import config
+import core
 from ml_util import ml
 from recommender import Recommender
 from collections import defaultdict
+
 
 class ClusterRecommender(Recommender):
     def __init__(self, model, amount=config.amount, cluster_type=config.cluster_type, highFactor=.1):
@@ -19,7 +21,7 @@ class ClusterRecommender(Recommender):
         self.amount = amount
         self.cluster_type = cluster_type
         self.highFactor = highFactor
-        self.ranks, self.names, self.histograms = data.getBandHistograms(amount, cut=True, big=False)
+        self.ranks, self.names, self.histograms = data.getBinnedHistograms(amount, cut=True, big=False)
 
     # TODO: find another way to keep track of clusters and the name of the images that
     # belong in those cluster, pretty bad that we need to pass names to fit
@@ -31,7 +33,6 @@ class ClusterRecommender(Recommender):
         self.cluster_names = ml.clusterResultsToNonNpArray(names, result)
         self.clusters = ml.clusterResultsToArray(train_data, result)
 
-
     def fit(self, train_data, target_classes, histograms=[]):
         self.train_data = train_data
         result = self.model.fit_predict(train_data)
@@ -40,7 +41,7 @@ class ClusterRecommender(Recommender):
             self.clusters = ml.clusterResultsToArray(histograms, result)
         else:
             self.clusters = ml.clusterResultsToArray(train_data, result)
-        self.swan = self.findSwanAttribute(self.clusters[0])
+
 
     def clusterNames(self, x):
         p = self.model.predict(x)
@@ -55,59 +56,21 @@ class ClusterRecommender(Recommender):
         C = self.cluster(imgArray)
 
         # and the corresponding histogram for ugly duckling
-        return self.uglyDucklingRecommend(hist, C)
+        return core.uglyDucklingRecommend(hist, C)
 
     def predict(self, x):
-
         C = self.cluster(x)
-        return self.uglyDucklingRecommend(x, C)
+        return core.uglyDucklingRecommend(x, C, var=False)
 
-    # Takes in two 1 x D image vectors and recommends
-    # a color
-    def recommendFromElement(self, x, y):
-        diff = y - x
-        am = np.argmax(diff)
-        return am
+    def buildCluster(self, x, size=15):
+        n = len(self.train_data)
+        ratio = np.zeros(n)
+        for i in xrange(n):
+       	    ratio[i] = intersectionRatio(x, self.train_data[i])
+       	max_args = np.argpartition(ratio, -size)[-size:]
 
-    # We're using color histograms to represent websites
-    # x is 1 x D and cluster is N x D
-    # D = (256/bin_size)^3
-    # The last argument is just to make tester.py work (poorly written code)
-    def naiveRecommendFromCluster(self, x, cluster):
-        N, D = cluster.shape
-        assert(x.shape == (D,))
-        m = 0
-        min_diff = 100000
-        for i in range(N):
-            diff = ml.euclideanDistance(x, cluster[i])
-            if diff < min_diff:
-                min_diff = diff
-                m = i
-        a = self.recommendFromElement(x, cluster[m])
-        return a
+        return self.train_data[max_args]
 
-    def findSwanAttribute(self, cluster):
-        _, D = cluster.shape
-        means = np.array([0 for i in xrange(D)])
-        for d in xrange(D):
-            samples = []
-            for elem in cluster:
-                samples.append(elem[d])
-            means[d] = np.mean(np.array(samples))
-        return np.argmax(means)
-
-    def uglyDucklingRecommend(self, x, cluster):
-        N, D = cluster.shape
-        assert(x.shape == (D,))
-
-        means = np.mean(cluster, axis=0)
-        varss = np.var(cluster, axis=0)
-        for d in xrange(D):
-            if x[d] > 0:
-                means[d] = 0
-            if means[d] == 0 or varss[d] == 0:
-                varss[d] = 1
-        return np.argmax(means /varss )
 
     # given an image name, return what cluster the image is in
     # if this is something we've trained on, then train should

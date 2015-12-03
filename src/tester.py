@@ -14,8 +14,10 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from data import data
 from data import image
 import config
+import core
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
+from duckling_recommender import DucklingRecommender
 from random_recommender import RandomRecommender
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -47,7 +49,7 @@ def test(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False):
     train_colors, _, train_histograms = removeColors(xTrain, highFactor=highFactor)
     recommender.fit(train_histograms, train_colors)
     if verbose:
-    	print 'Done fitting'
+        print 'Done fitting'
 
     colors, quantities, histograms = removeColors(xTest, highFactor=highFactor)
     assert(colors.shape[0] == n)
@@ -66,21 +68,24 @@ def test(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False):
 
     recommendedColors = np.zeros((n))
     ignored = 0
+    intersectionRatio = 0.
     for i in xrange(n):
         if i % 100 == 1:
-            print 'Partial %d: %f' % (i, float(numCorrect) / i)
+            print 'Partial %d: %f' % (i, float(numCorrect) / (i - ignored + 1))
 
-    	color, amount = colors[i], quantities[i]
+        color, amount = colors[i], quantities[i]
         # Ignore colors that might bias us
         if count[color] > color_mean + color_stdev:
-        	ignored += 1
-        	continue
+            ignored += 1
+            continue
 
         if verbose:
             print 'Testing site %s' % names[i]
             print 'Amount remmoved %d' % amount
         hist = histograms[i]
-
+        cluster = recommender.cluster(hist)
+        intersectionRatio += core.clusterIntersectionRatio(hist, cluster)
+        #recommender.testClusters(hist)
         recommendedColor = recommender.predict(hist)
         r1, g1, b1 = image.binToRGB(color)
         r2, g2, b2 = image.binToRGB(recommendedColor)
@@ -97,16 +102,19 @@ def test(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False):
 
 
     print 'Ignored: %d. Used: %d' % (ignored, n - ignored)
+    print 'Mean cluster intersection ratio: %f' % (intersectionRatio / (n - ignored))
     print colorError(colors, recommendedColors)
     percentCorrect = float(numCorrect)/(n - ignored)
     return percentCorrect
+
+
 
 def colorError(removed, recommended):
     n = len(removed)
     assert(len(recommended) == n)
     s = 0
     for i in xrange(n):
-    	s += image.binSquareDistance(removed[i], recommended[i])
+        s += image.binSquareDistance(removed[i], recommended[i])
     return float(s) / (n * 256 * 3)
 
 def pickRandomColor(histogram):
@@ -119,10 +127,10 @@ def pickRandomColor(histogram):
         p = random.randint(0, len(histogram) - 1)
         top_threshold *= 1.001
         if top_threshold >= maxVal:
-        	top_threshold = maxVal
+            top_threshold = maxVal
         bottom_threshold *= 0.999
         if bottom_threshold <= 0:
-        	bottom_threshold = 0
+            bottom_threshold = 0
     return p
 
 def pickColorToRemove(histogram, highFactor):
@@ -143,15 +151,15 @@ def removeColors(bHistograms, highFactor):
     colorsRemoved = []
     quantityRemoved = []
     for i in xrange(N):
-    	color = pickRandomColor(bHistograms[i])
-    	colorsRemoved.append(color)
-    	quantityRemoved.append(bHistograms[i, color])
-    	ret[i, color] = 0
+        color = pickRandomColor(bHistograms[i])
+        colorsRemoved.append(color)
+        quantityRemoved.append(bHistograms[i, color])
+        ret[i, color] = 0
     return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
 if __name__ == '__main__':
-    print 'Whole Set Classifier'
-    r = ClusterRecommender(KMeans(n_clusters=1))
+    print 'Duckling Recommender'
+    r = DucklingRecommender(cluster_size=15)
     print test(histograms, r, verbose=False)
 
     print 'Kmeans Classifier'
@@ -164,6 +172,10 @@ if __name__ == '__main__':
 
     print 'Affinity Propagation Classifier'
     r = ClusterRecommender(AffinityPropagation(damping=0.99))
+    print test(histograms, r, verbose=False)
+
+    print 'Whole Set Classifier'
+    r = ClusterRecommender(KMeans(n_clusters=1))
     print test(histograms, r, verbose=False)
 
 

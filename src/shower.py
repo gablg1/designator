@@ -18,13 +18,14 @@ import tester
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
 from random_recommender import RandomRecommender
+from duckling_recommender import DucklingRecommender
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.patches as patches
 
 amount = config.amount
 ranks, names, histograms = data.getBinnedHistograms(amount, cut=True, big=False)
-SAMPLE_SIZE = 10
+SAMPLE_SIZE = 4
 
 def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot=False):
     """
@@ -43,6 +44,7 @@ def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot
         the original and the modified
     """
     xTrain, xTest = ml.splitData(data, fractionTrain)
+    np.random.shuffle(xTest)
     xTest = xTest[:SAMPLE_SIZE, :]
 
     n, D = xTest.shape
@@ -58,7 +60,7 @@ def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot
         print train_colors
         recommender.fit(train_histograms, train_colors)
     if verbose:
-    	print 'Done fitting'
+        print 'Done fitting'
 
     colors, quantities, histograms = tester.removeColors(xTest, highFactor=highFactor)
     assert(colors.shape[0] == n)
@@ -83,11 +85,11 @@ def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot
         if i % 100 == 1:
             print 'Partial %d: %f' % (i, float(numCorrect) / i)
 
-    	color, amount = colors[i], quantities[i]
+        color, amount = colors[i], quantities[i]
         # Ignore colors that might bias us
         if count[color] > 10:
-        	ignored += 1
-        	continue
+            ignored += 1
+            continue
 
         if verbose:
             print 'Testing site %s' % names[i]
@@ -106,7 +108,20 @@ def show(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False, plot
         except:
             pass
 
+        cluster = recommender.cluster(hist)
+        print 'Incoming x'
+        nz = ml.maxArgs(hist, 15)
+        for j in nz:
+            print j, hist[j]
+
+        for x in cluster:
+            print 'Another x'
+            nz = ml.maxArgs(x, 15)
+            for j in nz:
+                print j, x[j]
+
         recommendedColor = recommender.predict(hist)
+        print recommendedColor
         r1, g1, b1 = image.binToRGB(color)
         r2, g2, b2 = image.binToRGB(recommendedColor)
         if verbose:
@@ -190,7 +205,8 @@ def plotRecommend(removed, recommend, names, clusters, xFactor=10, yFactor=10, m
 
 
 #r = ClusterRecommender(KMeans(n_clusters=50))
-r = ClusterRecommender(AffinityPropagation(damping=0.8))
+#r = ClusterRecommender(AffinityPropagation(damping=0.8))
+r = DucklingRecommender(cluster_size=15)
 
 #r = ClusterRecommender(KMeans(n_clusters=1))
 print show(histograms, r, verbose=True, plot=True)
