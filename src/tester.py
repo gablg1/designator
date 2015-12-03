@@ -79,12 +79,20 @@ def test(data, recommender, fractionTrain=.8, highFactor=.1, verbose=False):
             ignored += 1
             continue
 
+        hist = histograms[i]
+        # Ignore colors that are basically the background
+        if hist[color] > 0.4:
+        	ignored += 1
+        	continue
+
         if verbose:
             print 'Testing site %s' % names[i]
             print 'Amount remmoved %d' % amount
-        hist = histograms[i]
-        cluster = recommender.cluster(hist)
-        intersectionRatio += core.clusterIntersectionRatio(hist, cluster)
+        try:
+            cluster = recommender.cluster(hist)
+            intersectionRatio += core.clusterIntersectionRatio(hist, cluster)
+        except:
+            pass
         #recommender.testClusters(hist)
         recommendedColor = recommender.predict(hist)
         r1, g1, b1 = image.binToRGB(color)
