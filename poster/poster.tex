@@ -22,19 +22,27 @@
 \begin{textblock}{5}(.15,.85)
 \begin{block}{Introduction}
 Over the past decade, aesthetics have gained a lot of importance in the decisions companies
-make in how they design websites, and user experience is at the core of this trend. One way to
-automate part of the creative process of web design is to generate suggestions based on what
-popular similar websites contain that the input website does not yet have. Finding "similar
-websites," however, can prove to be a daunting task, since diffing a screenshot or even the
-color histogram of a given input website against thousands or millions of other websites in a
-database is unfeasibly slow. This paper applies Affinity Propagation, an unsupervised clustering
-technique, to solve this problem. Once the website database is clustered, the system can place
+make in how they design websites, and user experience is at the core of this trend.  In this paper, we develop a way to automate this process by generating color suggestions based on what we call the "Ugly Duckling" problem: essentially recommending what popular similar websites contain that the input website does not yet have. Using Ugly Duckling, we got results that are consistently better than color recommenders based on more classical techniques such as Naive Bayes, SVM, and Random Forest classification.
+
+It is not immediately clear, however, how to find "similar websites." Especially when the website dabatase is large, diffing a screenshot or even the color histogram of a given input website against thousands or millions of other websites can prove to be a daunting task. This paper applies different sorts of unsupervised clustering including KMeans and Affinity Propagation to solve this problem. Once the website database is clustered, the system can place
 any input website into a specific cluster. Diffing the input against all websites in a cluster can be
 done much faster than within the whole database, and the system will only have to consider
 recommendations that are relevant to that specific cluster. 
 \end{block}
 
-\begin{block}{Approach}
+\begin{block}{Data}
+Our data consists of the 5000 most popular websites on the web drawn from the Alexa database, whose screenshots we got using PhantomJS. To keep the data clean, we purged all uninteresting websites that have only 2 or less colors. For feature vectors, we used both ~7000 dimensional RGB arrays and $D=$~17000 dimensional binned histograms. The binned histograms are color histograms where we place color values into bins of size 10, so that we consider the existence of exactly $D$ colors as opposed to the usual 255 * 255 * 255 which is too large.
+\end{block}
+
+\begin{block}{Problem and Error Measuring}
+Website data is completely unlabeled and it is not immediately clear what a "good" color recommendation would be. To address this issue, we remove a color $c$ from each website in the test set and ask our system to try to recommend it back. In this framework, recommendation becomes a classification problem that tries to infer $c$ out of ~17000 different possible colors, so throughout the paper we consider both the classification accuracy $\tau$ as a percentage (greater is better, doesn't take into account how distant the colors are) and the mean color recommendation error $\delta$ (lower is better, takes into account how distant the colors are).
+$$\tau = \frac{\on{Correct}}{\on{Total}} = \frac{\sum_n I[r_n = c_n]}{n}$$
+$$\delta_Y = \sum_n |r_n - c_n|$$
+\end{block}
+
+
+\begin{block}{Approach - The Ugly Duckling Problem}
+Our recommendation scheme is based on the Ugly Duckling algorithm: given some input website $x$, we take a list of similar websites $Y$ and find the color not present in $x$ that appears most consistently in $Y$.
 We implemented a naive recommendation scheme that first clusters all websites, and then
 given some incoming website x, first finds the cluster it belongs to and in that cluster finds the
 image that is closest to it (which means finding the one with the smallest difference in
@@ -69,7 +77,7 @@ of websites, what color appears consistently in Y that does not appear in x?
 
 \begin{textblock}{5}(5.5, .85)
 \begin{block}{Materials And Methods}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
 \end{block}
 \begin{block}{Clustering on K-Means using Band Histograms}
 \includegraphics[scale=.5]{histkmeans.png}
