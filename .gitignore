@@ -1,3 +1,10 @@
 .DS_Store
 *.pyc
 persist/
+*.out
+*.log
+*.snm
+*.toc
+*.aux
+*.gz
+*.nav
