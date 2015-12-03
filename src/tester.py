@@ -166,8 +166,20 @@ def removeColors(bHistograms, highFactor):
     return np.array(colorsRemoved), np.array(quantityRemoved), ret
 
 if __name__ == '__main__':
-    print 'Duckling Recommender'
+    print 'Duckling Recommender 3'
+    r = DucklingRecommender(cluster_size=3)
+    print test(histograms, r, verbose=False)
+
+    print 'Duckling Recommender 8'
+    r = DucklingRecommender(cluster_size=8)
+    print test(histograms, r, verbose=False)
+
+    print 'Duckling Recommender 15'
     r = DucklingRecommender(cluster_size=15)
+    print test(histograms, r, verbose=False)
+
+    print 'Duckling Recommender 25'
+    r = DucklingRecommender(cluster_size=25)
     print test(histograms, r, verbose=False)
 
     print 'Kmeans Classifier'
