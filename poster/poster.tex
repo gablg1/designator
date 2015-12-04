@@ -1,4 +1,4 @@
-\documentclass[7pt]{beamer}
+\documentclass{beamer}
 \usepackage[orientation=landscape, size=a0, scale=1.4]{beamerposter}
 \usepackage[absolute,overlay]{textpos}
 \usepackage{multicol}
@@ -14,6 +14,8 @@
     \title[Designator]{Designator}
     \addtobeamertemplate{frametitle}{\vskip0.6ex}{}
 \newcommand{\N}{\mathcal{N}}	
+\usepackage{scrextend}
+\changefontsizes{29pt}
 \begin{document}
 
 %\begin{block}{\centering \Huge {Title Goes Here}}
@@ -68,6 +70,7 @@ of websites, what color appears consistently in Y that does not appear in x?
   	(Web) edge [connect] (WebLessColor);
 \end{tikzpicture}
 \end{figure}
+Where $W_c$ is the website we observe, $C$ is the ideal color to recommend, $W$ is the website with the color that we recommend, and $\N$ is a prior over the color we recommend.
 \end{block}
 
 
@@ -92,6 +95,12 @@ of websites, what color appears consistently in Y that does not appear in x?
 \begin{textblock}{5}(10.75, .85)
 \begin{block}{Life Cycle of a Duck}
 We initially started recommendations by using K-means (and then Affinity Propogation) clustering to first group our training websites, predicting which cluster our test website belongs to and then running Duckling within that chosen cluster. However, we tried to do something different the next time around: we instead generated clusters for each website on the fly. To do this, we would used the following ratio to calculate similarities between two websites via the following ratio: $\frac{|A \cap B|}{|A \cup B|}$. This ratio is known as the Jaccard index. The higher the ratio, the more similar two sets are. In this case, we chose the websites that had the highest ratios, called that a cluster, and then ran our Duckling recommender on the set for the website.
+\end{block}
+\begin{block}{Mean Color Recommendation}
+\includegraphics[scale=.9]{colorError.png}
+\end{block}
+\begin{block}{Designator Classifier Results}
+\includegraphics[scale=.9]{newplot.png}
 \end{block}
 \end{textblock}
 \end{frame}
