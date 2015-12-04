@@ -14,6 +14,7 @@ sys.path.insert(1, os.path.join(sys.path[0], '..'))
 from data import data
 from data import image
 import config
+import core
 from ml_util import ml
 from cluster_recommender import ClusterRecommender
 from duckling_recommender import DucklingRecommender
@@ -115,7 +116,7 @@ def test(data, names, recommender, fractionTrain=.8, highFactor=.1, verbose=Fals
         	continue
 
         try:
-            cluster = recommender.cluster(hist, img)
+            cluster = recommender.cluster(img)
             intersectionRatio += core.clusterIntersectionRatio(hist, cluster)
         except:
             pass
