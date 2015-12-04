@@ -36,31 +36,18 @@ Our data consists of the 5000 most popular websites on the web drawn from the Al
 
 \begin{block}{Problem and Error Measuring}
 Website data is completely unlabeled and it is not immediately clear what a "good" color recommendation would be. To address this issue, we remove a color $c$ from each website in the test set and ask our system to try to recommend it back. In this framework, recommendation becomes a classification problem that tries to infer $c$ out of ~17000 different possible colors, so throughout the paper we consider both the classification accuracy $\tau$ as a percentage (greater is better, doesn't take into account how distant the colors are) and the mean color recommendation error $\delta$ (lower is better, takes into account how distant the colors are).
-$$\tau = \frac{\text{Correct}}{\text{Total}} = \frac{\sum_n I[r_n = c_n]}{n}$$
+$$\tau_Y = \frac{\text{Correct}}{\text{Total}} = \frac{\sum_n I[r_n = c_n]}{n}$$
 $$\delta_Y = \sum_n |r_n - c_n|$$
 \end{block}
 
-
-\begin{block}{Approach - The Ugly Duckling Problem}
-Our recommendation scheme is based on the Ugly Duckling algorithm: given some input website $x$, we take a list of similar websites $Y$ and find the color not present in $x$ that appears most consistently in $Y$.
-We implemented a naive recommendation scheme that first clusters all websites, and then
-given some incoming website x, first finds the cluster it belongs to and in that cluster finds the
-image that is closest to it (which means finding the one with the smallest difference in
-histograms). From there, it recommends adding the color that would bring the two images the
-closest.
-The approach above completely disregards all but the closest sample in the cluster. We wish to
-improve it by answering the "ugly duckling" question. Namely if x is our input and Y is a cluster
-of websites, what color appears consistently in Y that does not appear in x?
-\end{block}
-
-\begin{block}{Graphical Models}
+\begin{block}{Model of the Problem}
+Consider our problem represented by the following graphical model
 \begin{figure}
 \centering
 \begin{tikzpicture}
 \tikzstyle{main}=[circle, minimum size = 10mm, thick, draw =black!80, node distance = 16mm]
 \tikzstyle{connect}=[-latex, thick]
 \tikzstyle{box}=[rectangle, draw=black!100]
-\node[main, fill = white!100] (Normal) [above] {$\N$ };
 \node[main, fill = white!100] (Color) [above=of Normal] {$C$ };
 \node[main] (Web) [right=of Color] {$W$};
 \node[main,fill={rgb:red,243;green,243;blue,243}] (WebLessColor) [above=of Web, yshift=15mm, xshift=-10mm] {$W_{c}$};
@@ -70,7 +57,25 @@ of websites, what color appears consistently in Y that does not appear in x?
   	(Web) edge [connect] (WebLessColor);
 \end{tikzpicture}
 \end{figure}
-Where $W_c$ is the website we observe, $C$ is the ideal color to recommend, $W$ is the website with the color that we recommend, and $\N$ is a prior over the color we recommend.
+Where $W$ is the initial (unobserved) website, $C$ is the removed color that we wish to predict, and $W_c$ is the website
+that we observe, after having $C$ removed. In our case, $C$ is chosen uniformly from $W$ (except we never let $C$ be a
+background color, i.e. a color that takes up more than 40\% of the page, because those colors are uninteresting as
+recommendations).
+\end{block}
+
+
+\begin{block}{Approach - The Ugly Duckling Algorithm}
+Given the model above, it makes sense to try to predict the color $C$ by looking at websites similar to $W_c$, hoping
+that they might contain $C$ is as well. From this intuition we developed theUgly Duckling recommendation algorithm: given some input website $x$, we take a list of similar websites $Y$ and find the color not present in $x$ that appears most consistently in $Y$.
+$$r = \on{argmax}_{d} \on{mean}(Y_d) $$
+where $Y_d$ is the $d$-th color of a website in $Y$. We also explored with similar formulas that also take variance into account such as
+$$r = \on{argmax}_{d} \frac{E\left[Y_d\right]}{\on{var}(Y_d)} $$
+but found the first one to be the most reliable.
+
+Now we are left with the problem of finding websites that are "similar" to our input. Our first idea was to use
+clustering algorithms such as KMeans and Affinity Propagation. We used the sk-learn version of KMeans and implemented
+Affinity Propagation ourselves in Python. The results of these algorithms on our data set can be seen in the following
+section.
 \end{block}
 
 
@@ -93,8 +98,31 @@ Where $W_c$ is the website we observe, $C$ is the ideal color to recommend, $W$ 
 \end{textblock}
 
 \begin{textblock}{5}(10.75, .85)
-\begin{block}{Life Cycle of a Duck}
-We initially started recommendations by using K-means (and then Affinity Propogation) clustering to first group our training websites, predicting which cluster our test website belongs to and then running Duckling within that chosen cluster. However, we tried to do something different the next time around: we instead generated clusters for each website on the fly. To do this, we would used the following ratio to calculate similarities between two websites via the following ratio: $\frac{|A \cap B|}{|A \cup B|}$. This ratio is known as the Jaccard index. The higher the ratio, the more similar two sets are. In this case, we chose the websites that had the highest ratios, called that a cluster, and then ran our Duckling recommender on the set for the website.
+\begin{block}{Intermediate Solutions - The Life of a Duck}
+We initially started with a naive recommendation scheme that considers only the image in the data set that is closest to our input (by diffing
+histograms). From there, we recommend adding the color that would bring the two images the
+closest.
+
+Then we moved on to the Ugly Duckling algorithm using clusters. Given an input website, we'd first place it into a
+cluster and consider that cluster the set of similar websites where we'd try to find the color $C$. Initially we used K-means and
+Affinity Propagation for clustering, which already improved our classification rate by over 50 times.
+\end{block}
+
+\begin{block}{Final solution - Going Full Duckling}
+The Ugly Duckling idea is based on the assumption that similar websites have a higher chance of having the color that
+was removed from website $x$. Because of this, we decided to dump the classical clustering algorithms mentioned above in favor of
+generating clusters on the fly, based on which websites have the most colors similar to our input. To do this, we
+calculate similarities between two websites via the following ratio known as the Jaccard index:
+$$\frac{|A \cap B|}{|A \cup B|}$$
+
+Where $A$ is the set of colors in website $a$ and $B$ is the set of colors in website $b$. The higher the ratio, the
+more similar two sites are. In this case, we chose the $n$ websites that had the highest ratios, called that a cluster,
+and then ran our Duckling recommender on the generated set.
+
+Using this new approach we get a mean cluster Jaccard index of approximately 0.15 as opposed to 0.8 with the
+Kmeans/Affinity Propagation clusters. The increased Jaccard index also reflected on an increased classification accuracy
+(and a lower mean color error) as depicted in the Results section below.
+
 \end{block}
 \begin{block}{Mean Color Recommendation}
 \includegraphics[scale=.9]{colorError.png}
