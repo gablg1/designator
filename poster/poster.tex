@@ -36,7 +36,7 @@ Our data consists of the 5000 most popular websites on the web drawn from the Al
 
 \begin{block}{Problem and Error Measuring}
 Website data is completely unlabeled and it is not immediately clear what a "good" color recommendation would be. To address this issue, we remove a color $c$ from each website in the test set and ask our system to try to recommend it back. In this framework, recommendation becomes a classification problem that tries to infer $c$ out of ~17000 different possible colors, so throughout the paper we consider both the classification accuracy $\tau$ as a percentage (greater is better, doesn't take into account how distant the colors are) and the mean color recommendation error $\delta$ (lower is better, takes into account how distant the colors are).
-$$\tau = \frac{\on{Correct}}{\on{Total}} = \frac{\sum_n I[r_n = c_n]}{n}$$
+$$\tau = \frac{\text{Correct}}{\text{Total}} = \frac{\sum_n I[r_n = c_n]}{n}$$
 $$\delta_Y = \sum_n |r_n - c_n|$$
 \end{block}
 
@@ -76,19 +76,25 @@ of websites, what color appears consistently in Y that does not appear in x?
 \end{textblock}
 
 \begin{textblock}{5}(5.5, .85)
-\begin{block}{Materials And Methods}
 
-\end{block}
-\begin{block}{Clustering on K-Means using Band Histograms}
-\includegraphics[scale=.5]{histkmeans.png}
-\end{block}
-\begin{block}{Clustering on K-Means using Images}
+\begin{block}{K-Means using Images}
 \includegraphics[scale=.5]{imgkmeans.png}
 \end{block}
-\begin{block}{Clustering on K-Means using Binned Histograms}
+\begin{block}{ K-Means using Binned Histograms}
 \includegraphics[scale=.5]{binKmeans.jpg}
 \end{block}
+\begin{block}{Affinity Propogation using Image}
+\includegraphics[scale=.5]{affPropImg.jpg}
+\end{block}
+\begin{block}{Affinity Propogation using Binned Histograms}
+\includegraphics[scale=.5]{binAffProp.jpg}
+\end{block}
+\end{textblock}
 
+\begin{textblock}{5}(10.75, .85)
+\begin{block}{Life Cycle of a Duck}
+We initially started recommendations by using K-means (and then Affinity Propogation) clustering to first group our training websites, predicting which cluster our test website belongs to and then running Duckling within that chosen cluster. However, we tried to do something different the next time around: we instead generated clusters for each website on the fly. To do this, we would used the following ratio to calculate similarities between two websites via the following ratio: $\frac{|A \cap B|}{|A \cup B|}$. This ratio is known as the Jaccard index. The higher the ratio, the more similar two sets are. In this case, we chose the websites that had the highest ratios, called that a cluster, and then ran our Duckling recommender on the set for the website.
+\end{block}
 \end{textblock}
 \end{frame}
 \end{document}
