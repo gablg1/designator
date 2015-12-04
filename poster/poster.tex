@@ -14,7 +14,7 @@
     \title[Designator]{Designator}
     \addtobeamertemplate{frametitle}{\vskip0.6ex}{}
 \usepackage{scrextend}
-\changefontsizes{29pt}
+\changefontsizes{27pt}
 \begin{document}
 
 %\begin{block}{\centering \Huge {Title Goes Here}}
@@ -68,7 +68,7 @@ recommendations).
 \begin{block}{Approach - The Ugly Duckling Algorithm}
 Given the model above, it makes sense to try to predict the color $C$ by looking at websites similar to $W_c$, hoping
 that they might contain $C$ is as well. From this intuition we developed theUgly Duckling recommendation algorithm: given some input website $x$, we take a list of similar websites $Y$ and find the color not present in $x$ that appears most consistently in $Y$.
-$$r = \text{argmax}_{d} \text{mean}(Y_d) $$
+$$r = \text{argmax}_{d} E[Y_d] $$
 where $Y_d$ is the $d$-th color of a website in $Y$. We also explored with similar formulas that also take variance into account such as
 $$r = \text{argmax}_{d} \frac{E\left[Y_d\right]}{\text{var}(Y_d)} $$
 but found the first one to be the most reliable.
@@ -147,10 +147,8 @@ Kmeans/Affinity Propagation clusters. The increased Jaccard index also reflected
 
 \end{block}
 \begin{block}{Mean Color Recommendation}
-\includegraphics[scale=.9]{colorError.png}
-\end{block}
-\begin{block}{Designator Classifier Results}
-\includegraphics[scale=.9]{newplot.png}
+\includegraphics[scale=.45]{colorError.png}
+\includegraphics[scale=.45]{newplot.png}
 \end{block}
 
 \begin{block}{Conclusion}
@@ -169,8 +167,9 @@ web design.
 \end{block}
 
 \begin{block}{References}
-Jaccard similarity
-Affinity Propagation
+http://papers.nips.cc/paper/2870-mixture-modeling-by-affinity-propagation.pdf
+http://www.cs.columbia.edu/~delbert/docs/DDueck-thesis\_small.pdf
+http://onlinelibrary.wiley.com/doi/10.1111/j.1469-8137.1912.tb05611.x/abstract
 \end{block}
 
 \end{textblock}
