@@ -13,7 +13,6 @@
   \usetheme{CambridgeUS}
     \title[Designator]{Designator}
     \addtobeamertemplate{frametitle}{\vskip0.6ex}{}
-\newcommand{\N}{\mathcal{N}}	
 \usepackage{scrextend}
 \changefontsizes{29pt}
 \begin{document}
@@ -50,10 +49,10 @@ Consider our problem represented by the following graphical model
 \tikzstyle{main}=[circle, minimum size = 10mm, thick, draw =black!80, node distance = 16mm]
 \tikzstyle{connect}=[-latex, thick]
 \tikzstyle{box}=[rectangle, draw=black!100]
-\node[main, fill = white!100] (Color) [above=of Normal] {$C$ };
+\node[main, fill = white!100] (Color) []{$C$ };
 \node[main] (Web) [right=of Color] {$W$};
 \node[main,fill={rgb:red,243;green,243;blue,243}] (WebLessColor) [above=of Web, yshift=15mm, xshift=-10mm] {$W_{c}$};
-  \path (Normal) edge [connect] (Color)
+  \path 
   	(Web) edge [connect] (Color)
   	(Color) edge [connect] (WebLessColor)
   	(Web) edge [connect] (WebLessColor);
@@ -69,9 +68,9 @@ recommendations).
 \begin{block}{Approach - The Ugly Duckling Algorithm}
 Given the model above, it makes sense to try to predict the color $C$ by looking at websites similar to $W_c$, hoping
 that they might contain $C$ is as well. From this intuition we developed theUgly Duckling recommendation algorithm: given some input website $x$, we take a list of similar websites $Y$ and find the color not present in $x$ that appears most consistently in $Y$.
-$$r = \on{argmax}_{d} \on{mean}(Y_d) $$
+$$r = \text{argmax}_{d} \text{mean}(Y_d) $$
 where $Y_d$ is the $d$-th color of a website in $Y$. We also explored with similar formulas that also take variance into account such as
-$$r = \on{argmax}_{d} \frac{E\left[Y_d\right]}{\on{var}(Y_d)} $$
+$$r = \text{argmax}_{d} \frac{E\left[Y_d\right]}{\text{var}(Y_d)} $$
 but found the first one to be the most reliable.
 
 Now we are left with the problem of finding websites that are "similar" to our input. Our first idea was to use
@@ -86,16 +85,37 @@ section.
 \begin{textblock}{5}(5.5, .85)
 
 \begin{block}{K-Means using Images}
-\includegraphics[scale=.5]{imgkmeans.png}
-\end{block}
-\begin{block}{ K-Means using Binned Histograms}
-\includegraphics[scale=.5]{binKmeans.jpg}
+\includegraphics[scale=.45]{imgkmeans.png}
 \end{block}
 \begin{block}{Affinity Propogation using Image}
-\includegraphics[scale=.5]{affPropImg.jpg}
+\includegraphics[scale=.45]{affPropImg.jpg}
 \end{block}
-\begin{block}{Affinity Propogation using Binned Histograms}
-\includegraphics[scale=.5]{binAffProp.jpg}
+\begin{block}{Affinity Propogation Model}
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\tikzstyle{main}=[circle, minimum size = 10mm, thick, draw =black!80, node distance = 16mm]
+\tikzstyle{connect}=[-latex, thick]
+\tikzstyle{box}=[rectangle, draw=black!100]
+\node[main, fill = white!100] (d)  {$d_i$};
+\node[main, fill = white!100] (e) [above= of d] {$e_j$};
+\node[main, fill = white!100] (s) [below= of d] {$s_i$};
+  \path (e) edge [connect] (d)
+  	(d) edge [connect] (e)
+  	(s) edge [connect] (d);
+  \node[rectangle, inner sep=4mm, draw=black!100, fit = (s)(d), label=below right:N] {};
+  \node[rectangle, inner sep=4mm, draw=black!100, fit = (e), label=below right:N] {};
+\end{tikzpicture}
+\end{figure}
+
+Where an arrow from a $d_i$ to a $e_j$ represents how ``responsible'' a given data point is for another (i.e., how good of a choice it would be to choose $e$ as an exemplar for $d$), an arrow from $e_j$ to $d_i$ asks how ``available'' a data point is to pick $e_j$ as an exemplar for $d_i$, taking into account other $d$'s preferences for $e$ as an exemplar, and $s_i$ is a prior over how similar two points can be. This is calculated by first calculating the euclidian distance between this website and all other websites, and then taking the median value of this set.
+\end{block}
+\begin{block}{Recommendations}
+\includegraphics[scale=.5]{fullDuck.jpg}
+\includegraphics[scale=.4975]{randomForest.jpg}
+\includegraphics[scale=.35]{affProp.jpg}
+
+
 \end{block}
 \end{textblock}
 
