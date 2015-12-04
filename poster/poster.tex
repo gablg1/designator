@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[7pt]{beamer}
 \usepackage[orientation=landscape, size=a0, scale=1.4]{beamerposter}
 \usepackage[absolute,overlay]{textpos}
 \usepackage{multicol}
@@ -22,11 +22,9 @@
 \begin{textblock}{5}(.15,.85)
 \begin{block}{Introduction}
 Over the past decade, aesthetics have gained a lot of importance in the decisions companies
-make in how they design websites, and user experience is at the core of this trend.  In this paper, we develop a way to automate this process by generating color suggestions based on what we call the "Ugly Duckling" problem: essentially recommending what popular similar websites contain that the input website does not yet have. Using Ugly Duckling, we got results that are consistently better than color recommenders based on more classical techniques such as Naive Bayes, SVM, and Random Forest classification.
-
-It is not immediately clear, however, how to find "similar websites." Especially when the website dabatase is large, diffing a screenshot or even the color histogram of a given input website against thousands or millions of other websites can prove to be a daunting task. This paper applies different sorts of unsupervised clustering including KMeans and Affinity Propagation to solve this problem. Once the website database is clustered, the system can place
-any input website into a specific cluster. Diffing the input against all websites in a cluster can be
-done much faster than within the whole database, and the system will only have to consider
+make in how they design websites, and user experience is at the core of this trend.  In this paper, we develop a way to automate this process by generating color suggestions based on what we call the "Ugly Duckling" problem: essentially recommending what popular similar websites contain that the input website does not yet have. Using Ugly Duckling, we got results that are consistently better than color recommenders based on more classical techniques such as Naive Bayes, SVM, and Random Forest classification. It is not immediately clear, however, how to find "similar websites." Especially when the website dabatase is large, diffing a screenshot or even the color histogram of a given input website against thousands or millions of other websites can prove to be a daunting task. This paper applies different sorts of unsupervised clustering including KMeans and Affinity Propagation to solve this problem. Once the websites are clustered, the system can place
+an input website into a cluster. Diffing the input against all websites in a cluster can be
+done much faster than within the whole database,anybody faanybody fa and the system will only have to consider
 recommendations that are relevant to that specific cluster. 
 \end{block}
 
